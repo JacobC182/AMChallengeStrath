@@ -1,6 +1,5 @@
 #2021 Andrea Milani Challenge
-#THIS IS A TEST GITHUB IS SHITE
-#
+
 #Importing time module - to measure script execution time
 import time
 scriptStartTime = time.time()
