@@ -1,5 +1,3 @@
-
-
 from numpy.ma.core import dot
 #Function for converting a state vector to orbital elements (Around Earth/Geocentric frame)
 #UNITS - KM, KM/s (INPUTS)
