@@ -1,2 +1,0 @@
-#githubtest
-print("GitHub")

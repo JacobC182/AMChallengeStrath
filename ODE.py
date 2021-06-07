@@ -1,4 +1,5 @@
 #2021 Andrea Milani Challenge
+#Time datum EME2000 (1/1/2000) = 0
 
 #Importing time module - to measure script execution time
 import time
@@ -10,7 +11,7 @@ import numpy as np
 import math as ma
 
 #Defining Area-to-Mass Ratio (TEMPORARY PLACEHOLDER)
-Aratio = 1
+Aratio = 0.02
 
 #Defining Constants
 GME = np.double(3.986004407799724e+5)   #GM Earth - km3/sec2
@@ -55,7 +56,7 @@ fC22z = (5*GME*(RE**2)*r15*C22*z*((y**2)-(x**2))) /  (2*((x**2+y**2+z**2)**3.5))
 #S22 terms
 fS22x = ( (-5*GME*(RE**2)*r15*S22*(x**2)*y) /  ((x**2+y**2+z**2)**3.5) ) + ( (GME*(RE**2)*r15*S22*y)/((x**2+y**2+z**2)**2.5) )
 fS22y = ( (-5*GME*(RE**2)*r15*S22*(y**2)*x) /  ((x**2+y**2+z**2)**3.5) ) + ( (GME*(RE**2)*r15*S22*x)/((x**2+y**2+z**2)**2.5) )
-fS22z = ( (-5*GME*(RE**2)*r15*S22*x*y*z) /  ((x**2+y**2+z**2)**3.5) )
+fS22z = ( (-5*GME*(RE**2)*r15*S22*x*y*z) / ((x**2+y**2+z**2)**3.5) )
 
 #C22 final terms
 fC22X = fC22x*hy.cos(thetaG+(vE*t)) - fC22y*hy.sin(thetaG+(vE*t))
@@ -73,9 +74,9 @@ fJ2Y = ( (GME*(RE**2)*r5*C20*Y)/(2*((X**2+Y**2+Z**2)**0.5)) )* ( (3/((X**2+Y**2+
 fJ2Z = ( (GME*(RE**2)*r5*C20*Z)/(2*((X**2+Y**2+Z**2)**0.5)) )* ( (9/((X**2+Y**2+Z**2)**2)) - (15*Z**2)/((X**2+Y**2+Z**2)**3) )
 
 #Keplerian "Kep" terms
-fKepX = (-GME*X)/((X**2+Y**2+Z**2)**1.5)
-fKepY = (-GME*Y)/((X**2+Y**2+Z**2)**1.5)
-fKepZ = (-GME*Z)/((X**2+Y**2+Z**2)**1.5)
+fKepX = -(GME*X)/((X**2+Y**2+Z**2)**1.5)
+fKepY = -(GME*Y)/((X**2+Y**2+Z**2)**1.5)
+fKepZ = -(GME*Z)/((X**2+Y**2+Z**2)**1.5)
 
 #Solar tide - sun angular terms
 lSun = phiS0 + vS*t
@@ -83,9 +84,9 @@ rSun = 149.619 - 2.499*hy.cos(lSun) - 0.021*hy.cos(2*lSun)  #10^6KM !!
 lambdaSun = OmegaS + lSun + (ma.pi/180)*((6892/3600)*hy.sin(lSun) + (72/3600)*hy.sin(2*lSun))
 
 #Solar tide - Sun XYZ position terms
-Xs = rSun*hy.cos(lambdaSun)
-Ys = rSun*hy.sin(lambdaSun)*ma.cos(eps)
-Zs = rSun*hy.sin(lambdaSun)*ma.sin(eps)
+Xs = rSun*1e6*hy.cos(lambdaSun)
+Ys = rSun*1e6*hy.sin(lambdaSun)*ma.cos(eps)
+Zs = rSun*1e6*hy.sin(lambdaSun)*ma.sin(eps)
 
 #Solar tide final terms
 fSunX = -GMS*( ( (X-Xs)/ ( ((X-Xs)**2 +(Y-Ys)**2 +(Z-Zs)**2)**1.5) ) +  (Xs/((Xs**2+Ys**2+Zs**2)**1.5)) )
@@ -114,9 +115,9 @@ Ym = (ma.cos(eps)*rMoon*hy.sin(lambdaMoon)*hy.cos(betaMoon)) + (-ma.sin(eps)*rMo
 Zm = (ma.sin(eps)*rMoon*hy.sin(lambdaMoon)*hy.cos(betaMoon)) + (ma.cos(eps)*rMoon*hy.sin(betaMoon))
 
 #Lunar tide final terms
-fMoonX = -GMM*( ( (X-Xm)/ ( ((X-Xm)**2 +(Y-Ym)**2 +(Z-Zm)**2)**1.5) ) +  (Xm/((Xm**2+Ym**2+Zm**2)**1.5)) )
-fMoonY = -GMM*( ( (Y-Ym)/ ( ((X-Xm)**2 +(Y-Ym)**2 +(Z-Zm)**2)**1.5) ) +  (Ym/((Xm**2+Ym**2+Zm**2)**1.5)) )
-fMoonZ = -GMM*( ( (Z-Zm)/ ( ((X-Xm)**2 +(Y-Ym)**2 +(Z-Zm)**2)**1.5) ) +  (Zm/((Xm**2+Ym**2+Zm**2)**1.5)) )
+fMoonX = -GMM*( ( (X-Xm) / ( ((X-Xm)**2 +(Y-Ym)**2 + (Z-Zm)**2)**1.5) ) + (Xm/((Xm**2+Ym**2+Zm**2)**1.5)) )
+fMoonY = -GMM*( ( (Y-Ym) / ( ((X-Xm)**2 +(Y-Ym)**2 + (Z-Zm)**2)**1.5) ) + (Ym/((Xm**2+Ym**2+Zm**2)**1.5)) )
+fMoonZ = -GMM*( ( (Z-Zm) / ( ((X-Xm)**2 +(Y-Ym)**2 + (Z-Zm)**2)**1.5) ) + (Zm/((Xm**2+Ym**2+Zm**2)**1.5)) )
 
 #Solar radiation pressure terms
 fSRPX = Aratio*( (pSRP*(aS**2)*(X-Zs))/(((X-Xs)**2 +(Y-Ys)**2 +(Z-Zs)**2)**1.5) )
@@ -124,58 +125,68 @@ fSRPY = Aratio*( (pSRP*(aS**2)*(Y-Ys))/(((X-Xs)**2 +(Y-Ys)**2 +(Z-Zs)**2)**1.5) 
 fSRPZ = Aratio*( (pSRP*(aS**2)*(Z-Zs))/(((X-Xs)**2 +(Y-Ys)**2 +(Z-Zs)**2)**1.5) )
 
 #Combining final terms
-d2X = fKepX# + fJ2X + fC22X + fS22X + fMoonX + fSunX + fSRPX
-d2Y = fKepY# + fJ2Y + fC22Y + fS22Y + fMoonY + fSunY + fSRPY
-d2Z = fKepZ# + fJ2Z + fC22Z + fS22Z + fMoonZ + fSunZ + fSRPZ
-
-#Defining 1st order ODE system substitute variables
-dX = pX
-dY = pY
-dZ = pZ
+d2X = fKepX + fJ2X + fC22X + fS22X + fMoonX + fSunX + fSRPX
+d2Y = fKepY + fJ2Y + fC22Y + fS22Y + fMoonY + fSunY + fSRPY
+d2Z = fKepZ + fJ2Z + fC22Z + fS22Z + fMoonZ + fSunZ + fSRPZ
 
 #Creating system of equations for integration
-sysODE = [(X, dX), (Y, dY), (Z, dZ), (dX, d2X), (dY, d2Y), (dZ,d2Z)]
+sysODE = [(X, pX), (Y, pY), (Z, pZ), (pX, d2X), (pY, d2Y), (pZ, d2Z)]
 
-#Defining initial conditions
-sysInit = [2.6533e7, 0, 0, 0, 2.2242e3, 3.1765e3]
+#Defining initial conditions - UNITS - KM & KM/s
+sysInit = [2.6533e4, 0, 0, 0, 2.2220, 3.1734]
 
 #Creating integrator object
 ta = hy.taylor_adaptive(sysODE,sysInit)
 
 #Printing taylor object properties to stdout
-print(ta)
+#print(ta)
 
-#timestep grid
-grid = np.linspace(0,31557600,100000)
+#Calculating Orbital Period
+orbRadius = (sysInit[0]**2 + sysInit[1]**2 + sysInit[2]**2)**0.5
+orbPeriod = 2*ma.pi*ma.sqrt((orbRadius**3)/GME)
+
+#timestep grid for integrator
+grid = np.linspace(0,200000,100000) #UNITS - seconds
 #propagating along timesteps of grid
 out = ta.propagate_grid(grid)
-print(ta)
+#print(ta)
 
-#saving propagator output
+#computing and printing script execution time
+scriptExecTime = (time.time() - scriptStartTime)
+print('Script Execution time: ' + str(scriptExecTime)[0:6] + ' seconds')
+
+#Printing Initial orbital period - testing
+print("Initial Orbital Period: " + str(orbPeriod*0.00001157407)[0:6] + " Days")
+print("Propagation Period: " + str(grid[-1]*0.00001157407)[0:6] + " Days")
+print("No. Of Orbits:" + str(grid[-1]/orbPeriod)[0:7])
+
+#saving propagator output to txt file
 np.savetxt("propOut.txt", out[4],delimiter=',')
-#saving time grid
+
+#saving time grid to txt file
 np.savetxt("timeOut.txt", grid[:])
+
+#calculating magnitude of body position
 posMagnitude = np.sqrt((out[4][:, 3]**2) + (out[4][:, 4]**2) + (out[4][:, 5]**2))
 
+#importing motplotlib library pyplot method (MATLAB-Like Plotting Module)
 import matplotlib.pyplot as plt
 
 #3d positional orbit plot
 fig = plt.figure(figsize=(9, 9))
 ax = plt.axes(projection ='3d')
 
+#plotting body position
 plt.plot(out[4][:, 3], out[4][:, 4],out[4][:, 5])
 
+#enable gridlines
 plt.grid()
+#show plot figure window
 plt.show()
 
 #plot of axial position vs time
-fig2 = plt.figure()
+#fig2 = plt.figure()
 #plt.plot( grid[:], out[4][:, 3] - out[4][0, 3])
 #plt.plot( grid[:], out[4][:, 4] - out[4][0, 4])
-plt.plot( grid[:], posMagnitude[:])
-plt.show()
-
-
-#computing and printing script execution time
-scriptExecTime = (time.time() - scriptStartTime)
-print('Script Execution time: ' + str(scriptExecTime)[0:6] + ' seconds')
+#plt.plot( grid[:], posMagnitude[:])
+#plt.show()
