@@ -1,8 +1,11 @@
+#This file contains coordinate system conversion functions
+#For converting between a geocentric cartesian system and Orbital elements
+
 from numpy.ma.core import dot
 #Function for converting a state vector to orbital elements (Around Earth/Geocentric frame)
 #UNITS - KM, KM/s (INPUTS)
 #OUTPUT UNITS ARE: KM, RADIANS
-def vec2orb(pos,vel):
+def vec2orb(pos, vel):
 
 #importing NumPy library
     import numpy as np
@@ -58,3 +61,17 @@ def vec2orb(pos,vel):
     a = 1/((2/mag)-((np.linalg.norm(vel)**2)/u))
 
     return a, emag, i, raan, argp, nu
+
+#Function for converting from orbital elements to state vector
+#INPUTS - semimajor axis-a, eccentricity-e, inclination-i, ascending node-raan
+#       - argument of periapsis-argp, mean anomaly-M
+#OUTPUTS
+#State vector - 2 1x3 arrays of positon and velocity respectively
+def orb2vec(a, e, i, raan, argp, M):
+    
+#importing NumPy library
+    import numpy as np
+
+#defining constants
+    u = np.double(3.986004407799724e+5)   #GM Earth - km3/sec2
+
