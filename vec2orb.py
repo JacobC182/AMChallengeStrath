@@ -1,11 +1,12 @@
 #This file contains coordinate system conversion functions
-#For converting between a geocentric cartesian system and Orbital elements
+#For converting between a geocentric cartesian system and Orbital elements and opposite
 
 from numpy.ma.core import dot
+
+def vec2orb(pos, vel):
 #Function for converting a state vector to orbital elements (Around Earth/Geocentric frame)
 #UNITS - KM, KM/s (INPUTS)
 #OUTPUT UNITS ARE: KM, RADIANS
-def vec2orb(pos, vel):
 
 #importing NumPy library
     import numpy as np
@@ -60,18 +61,42 @@ def vec2orb(pos, vel):
 #calculating semimajor axis
     a = 1/((2/mag)-((np.linalg.norm(vel)**2)/u))
 
+#returning orbital elements
     return a, emag, i, raan, argp, nu
 
+
+def orb2vec(a, e, i, raan, argp, nu):
 #Function for converting from orbital elements to state vector
 #INPUTS - semimajor axis-a, eccentricity-e, inclination-i, ascending node-raan
 #       - argument of periapsis-argp, mean anomaly-M
 #OUTPUTS
 #State vector - 2 1x3 arrays of positon and velocity respectively
-def orb2vec(a, e, i, raan, argp, M):
-    
+#UNITS KM, Radians, KM/s 
+
 #importing NumPy library
     import numpy as np
 
 #defining constants
     u = np.double(3.986004407799724e+5)   #GM Earth - km3/sec2
 
+#calculating semilatus rectum
+    sl = a*(1-e**2)
+
+#calculating magnitude (polar coordinate system)
+    rm = sl/(1+e*np.cos(nu))
+
+#calculating angular position (polar coordinate system)
+    lat = argp+nu
+
+#calculating and combining position vector
+    r = [(rm*(np.cos(raan)*np.cos(lat) - np.sin(raan)*np.cos(i)*np.sin(lat))), (rm*(np.sin(raan)*np.cos(lat) - np.cos(raan)*np.cos(i)*np.sin(lat))), (rm*np.sin(i)*np.sin(lat))]
+
+#calculating velocity vector
+    vx = -np.sqrt(u/sl) * (np.cos(raan)*(e* np.sin(argp) + np.sin(lat)) + np.sin(raan)*np.cos(i)*(e*np.sin(argp)+np.sin(lat)) )
+    vy = -np.sqrt(u/sl) * (np.cos(raan)*(e* np.sin(argp) + np.sin(lat)) - np.sin(raan)*np.cos(i)*(e*np.sin(argp)+np.sin(lat)) )
+    vz = np.sqrt(u/sl) * (e * np.cos(argp) + np.cos(lat)) * np.sin(i)
+#combining velocity vector
+    v = [vx, vy, vz]
+
+#returning position and velocity vectors
+    return r, v
