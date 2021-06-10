@@ -92,8 +92,8 @@ def orb2vec(a, e, i, raan, argp, nu):
     r = [(rm*(np.cos(raan)*np.cos(lat) - np.sin(raan)*np.cos(i)*np.sin(lat))), (rm*(np.sin(raan)*np.cos(lat) - np.cos(raan)*np.cos(i)*np.sin(lat))), (rm*np.sin(i)*np.sin(lat))]
 
 #calculating velocity vector
-    vx = -np.sqrt(u/sl) * (np.cos(raan)*(e* np.sin(argp) + np.sin(lat)) + np.sin(raan)*np.cos(i)*(e*np.sin(argp)+np.sin(lat)) )
-    vy = -np.sqrt(u/sl) * (np.cos(raan)*(e* np.sin(argp) + np.sin(lat)) - np.sin(raan)*np.cos(i)*(e*np.sin(argp)+np.sin(lat)) )
+    vx = -np.sqrt(u/sl) * (np.cos(raan)*(e* np.sin(argp) + np.sin(lat)) + np.sin(raan)*np.cos(i)*(e*np.cos(argp)+np.cos(lat)) )
+    vy = -np.sqrt(u/sl) * (np.sin(raan)*(e* np.sin(argp) + np.sin(lat)) - np.cos(raan)*np.cos(i)*(e*np.cos(argp)+np.cos(lat)) )
     vz = np.sqrt(u/sl) * (e * np.cos(argp) + np.cos(lat)) * np.sin(i)
 #combining velocity vector
     v = [vx, vy, vz]

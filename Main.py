@@ -21,7 +21,7 @@ ta = hy.taylor_adaptive(sysODE,sysInit)
 
 #Calculating Orbital Period
 orbRadius = (sysInit[0]**2 + sysInit[1]**2 + sysInit[2]**2)**0.5
-GME = np.double(3.986004407799724e+5)
+GME = np.double(3.986004407799724e+5)   #GM-Earth (KM3/s2)
 orbPeriod = 2*ma.pi*ma.sqrt((orbRadius**3)/GME)
 
 #timestep grid for integrator
