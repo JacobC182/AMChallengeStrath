@@ -17,7 +17,7 @@ import math as ma
 #Defining initial conditions - UNITS - KM & KM/s
 sysInit = [2.6533e4, 0, 0, 0, 2.2220, 3.1734]
 #Creating integrator object
-ta = hy.taylor_adaptive(sysODE,sysInit)
+ta = hy.taylor_adaptive(sysODE,sysInit, pars = [0.1])
 
 #Calculating Orbital Period
 orbRadius = (sysInit[0]**2 + sysInit[1]**2 + sysInit[2]**2)**0.5

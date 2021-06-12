@@ -8,8 +8,8 @@ def ODE():
     import numpy as np
     import math as ma
 
-#Defining Area-to-Mass Ratio (TEMPORARY PLACEHOLDER)
-    Aratio = 0.02
+#Defining Area-to-Mass Ratio (INPUT PARAMETER)
+    Aratio = hy.par[0]
 
 #Defining Constants
     GME = np.double(3.986004407799724e+5)   #GM Earth - km3/sec2
