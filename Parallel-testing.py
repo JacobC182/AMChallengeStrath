@@ -5,14 +5,27 @@ coreCount = 8
 
 initial = [2.6533e4, 0, 0, 0, 2.2220, 3.1734]
 
-import pp
+ODE = ODE()
 
-job_server = pp.Server(ncpus=coreCount)
-print ("Starting Parallel Pool with " + str(coreCount) + "Cores")
+import multiprocessing as mp
 
+#p1 = mp.Process(target=int1(ODE, initial, 200000, [0.1]))
+#p2 = mp.Process(target=int1(ODE, initial, 200000, [0.2]))
+#p3 = mp.Process(target=int1(ODE, initial, 200000, [0.3]))
+#p4 = mp.Process(target=int1(ODE, initial, 200000, [0.4]))
+#p5 = mp.Process(target=int1(ODE, initial, 200000, [0.5]))
+#p6 = mp.Process(target=int1(ODE, initial, 200000, [0.6]))
+#p7 = mp.Process(target=int1(ODE, initial, 200000, [0.7]))
+#p8 = mp.Process(target=int1(ODE, initial, 200000, [0.8]))
 
-for i in range(coreCount):
-    job_server.submit(int1, args=(ODE(),initial,200000,[0.1]), modules=("heyoka","numpy","math"))
+AM = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]
+
+from multiprocessing_on_dill import Pool
+
+if __name__ == "__main__":
+    pool1=Pool(processes=3)
+
+    r = pool1.map(int1,[ODE,initial,200000,0.1] )
 
 #THIS DOES NOT WORK
-#ParallelPython cannot successfully interact with the Heyoka library - "heyoka.core.expression" objects
+#ParallelPython or multiprocessing, or joblib cannot successfully interact with the Heyoka library - "heyoka.core.expression" objects
