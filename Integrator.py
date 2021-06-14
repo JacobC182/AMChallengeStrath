@@ -4,6 +4,7 @@ def int1(sysODE, sysInit, untilTime, ODEpars):
 
     ta = hy.taylor_adaptive(sysODE,sysInit, pars = ODEpars)
 
-    intOut = ta.propagate_until(t = untilTime)
+    #intOut = ta.propagate_until(t = untilTime)
+    ta.propagate_until(t = untilTime)
 
-    return(intOut)
+    return(ta.state)
