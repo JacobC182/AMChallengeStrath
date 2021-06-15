@@ -20,13 +20,17 @@ sysInit = [2.6533e4, 0, 0, 0, 2.2220, 3.1734]
 #Creating integrator object
 ta = hy.taylor_adaptive(sysODE,sysInit, pars = [0.1])
 
+#printing taylor series object summary
+print(ta)
+
+
 #Calculating Orbital Period
 orbRadius = (sysInit[0]**2 + sysInit[1]**2 + sysInit[2]**2)**0.5
 GME = np.double(3.986004407799724e+5)   #GM-Earth (KM3/s2)
 orbPeriod = 2*ma.pi*ma.sqrt((orbRadius**3)/GME)
 
 #timestep grid for integrator
-grid = np.linspace(0,200000,100000) #UNITS - seconds
+grid = np.linspace(0,946728000,131400) #UNITS - seconds
 #propagating along timesteps of grid
 out = ta.propagate_grid(grid)
 #print(ta)
