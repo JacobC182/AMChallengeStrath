@@ -11,8 +11,8 @@ startTime = time.time()
 coreCount = 8
 
 initial = [2.6533e4, 0, 0, 0, 2.2220, 3.1734]
-
-ODE = ODE()
+Control = [1,1,1,1,1,1,1]
+ODE = ODE(Control)
 
 AM = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]
 

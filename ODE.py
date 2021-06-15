@@ -1,7 +1,7 @@
 #ODe function that defines the equations of motion given for the Andrea Milani Challenge 2021
 #Time datum EME2000 (1/1/2000) = 0
 
-def ODE():
+def ODE(Control):
 
 #Importing "Heyoka" integrator library & NumPy library & Math library
     import heyoka as hy
@@ -10,6 +10,7 @@ def ODE():
 
 #Defining Area-to-Mass Ratio (INPUT PARAMETER)
     Aratio = hy.par[0]
+
 
 #Defining Constants
     GME = np.double(3.986004407799724e+5)   #GM Earth - km3/sec2
@@ -124,9 +125,9 @@ def ODE():
     fSRPZ = Aratio*( (pSRP*(aS**2)*(Z-Zs))/(((X-Xs)**2 +(Y-Ys)**2 +(Z-Zs)**2)**1.5) )
 
 #Combining final terms
-    d2X = fKepX + fJ2X + fC22X + fS22X + fMoonX + fSunX + fSRPX
-    d2Y = fKepY + fJ2Y + fC22Y + fS22Y + fMoonY + fSunY + fSRPY
-    d2Z = fKepZ + fJ2Z + fC22Z + fS22Z + fMoonZ + fSunZ + fSRPZ
+    d2X = fKepX*Control[0] + fJ2X*Control[1] + fC22X*Control[2] + fS22X*Control[3] + fMoonX*Control[4] + fSunX*Control[5] + fSRPX*Control[6]
+    d2Y = fKepY*Control[0] + fJ2Y*Control[1] + fC22Y*Control[2] + fS22Y*Control[3] + fMoonY*Control[4] + fSunY*Control[5] + fSRPY*Control[6]
+    d2Z = fKepZ*Control[0] + fJ2Z*Control[1] + fC22Z*Control[2] + fS22Z*Control[3] + fMoonZ*Control[4] + fSunZ*Control[5] + fSRPZ*Control[6]
 
 #Creating system of equations for integration
     sysODE = [(X, pX), (Y, pY), (Z, pZ), (pX, d2X), (pY, d2Y), (pZ, d2Z)]

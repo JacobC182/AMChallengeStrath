@@ -7,7 +7,8 @@ scriptStartTime = time.time()
 #Importing ODE system from ODE function file
 from ODE import ODE
 #Creating ODE system
-sysODE = ODE()
+Control = [1,1,1,1,1,1,1]
+sysODE = ODE(Control)
 
 #Importing Heyoka.py, NumPy, Math Libraries
 import heyoka as hy
