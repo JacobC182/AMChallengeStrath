@@ -100,3 +100,9 @@ def orb2vec(a, e, i, raan, argp, nu):
 
 #returning position and velocity vectors
     return r, v
+
+#callback Function for integrator
+#for use as a NON-TERMINAL event with the integrator
+
+def callback1(ta, time, dsign):
+    print("callback function triggered")
