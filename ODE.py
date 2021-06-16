@@ -30,7 +30,7 @@ def ODE(Control):
     eps = np.double((np.pi/180)*23.4392911)
     phiS0 = np.double((np.pi/180)*357.5256)
     OmegaS = np.double((np.pi/180)*282.94)
-    pSRP = np.double(4.56e-6)
+    pSRP = np.double(4.56e-9)           #changed from e-6 to e-9 to change units from m to km, keep consistency with KM, KM/s
 
 #Defining shortcut variables (Ease of Use)
     r15 = ma.sqrt(15)                       #Square root of 15
@@ -128,6 +128,10 @@ def ODE(Control):
     d2X = fKepX*Control[0] + fJ2X*Control[1] + fC22X*Control[2] + fS22X*Control[3] + fMoonX*Control[4] + fSunX*Control[5] + fSRPX*Control[6]
     d2Y = fKepY*Control[0] + fJ2Y*Control[1] + fC22Y*Control[2] + fS22Y*Control[3] + fMoonY*Control[4] + fSunY*Control[5] + fSRPY*Control[6]
     d2Z = fKepZ*Control[0] + fJ2Z*Control[1] + fC22Z*Control[2] + fS22Z*Control[3] + fMoonZ*Control[4] + fSunZ*Control[5] + fSRPZ*Control[6]
+    #d2X = fKepX*Control[0] + fJ2X*Control[1] + fC22X*Control[2] + fS22X*Control[3]# + fMoonX*Control[4] + fSunX*Control[5] + fSRPX*Control[6]
+    #d2Y = fKepY*Control[0] + fJ2Y*Control[1] + fC22Y*Control[2] + fS22Y*Control[3]# + fMoonY*Control[4] + fSunY*Control[5] + fSRPY*Control[6]
+    #d2Z = fKepZ*Control[0] + fJ2Z*Control[1] + fC22Z*Control[2] + fS22Z*Control[3]# + fMoonZ*Control[4] + fSunZ*Control[5] + fSRPZ*Control[6]
+
 
 #Creating system of equations for integration
     sysODE = [(X, pX), (Y, pY), (Z, pZ), (pX, d2X), (pY, d2Y), (pZ, d2Z)]
