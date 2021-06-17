@@ -11,7 +11,6 @@ def ODE(Control):
 #Defining Area-to-Mass Ratio (INPUT PARAMETER)
     Aratio = hy.par[0]
 
-
 #Defining Constants
     GME = np.double(3.986004407799724e+5)   #GM Earth - km3/sec2
     GMS = np.double(1.32712440018e+11)      #GM Sun - km3/sec2
@@ -38,8 +37,7 @@ def ODE(Control):
     t = hy.time                             # "t" defined as the time of the integrator "heyoka.time"
 
 #Creating symbolic variables
-    X, Y, Z = hy.make_vars("X","Y","Z")
-    pX, pY, pZ = hy.make_vars("pX","pY","pZ")
+    X, Y, Z, pX, pY, pZ = hy.make_vars("X", "Y", "Z", "pX", "pY", "pZ")
 
 #Defining Equations of motion
 
@@ -128,12 +126,9 @@ def ODE(Control):
     d2X = fKepX*Control[0] + fJ2X*Control[1] + fC22X*Control[2] + fS22X*Control[3] + fMoonX*Control[4] + fSunX*Control[5] + fSRPX*Control[6]
     d2Y = fKepY*Control[0] + fJ2Y*Control[1] + fC22Y*Control[2] + fS22Y*Control[3] + fMoonY*Control[4] + fSunY*Control[5] + fSRPY*Control[6]
     d2Z = fKepZ*Control[0] + fJ2Z*Control[1] + fC22Z*Control[2] + fS22Z*Control[3] + fMoonZ*Control[4] + fSunZ*Control[5] + fSRPZ*Control[6]
-    #d2X = fKepX*Control[0] + fJ2X*Control[1] + fC22X*Control[2] + fS22X*Control[3]# + fMoonX*Control[4] + fSunX*Control[5] + fSRPX*Control[6]
-    #d2Y = fKepY*Control[0] + fJ2Y*Control[1] + fC22Y*Control[2] + fS22Y*Control[3]# + fMoonY*Control[4] + fSunY*Control[5] + fSRPY*Control[6]
-    #d2Z = fKepZ*Control[0] + fJ2Z*Control[1] + fC22Z*Control[2] + fS22Z*Control[3]# + fMoonZ*Control[4] + fSunZ*Control[5] + fSRPZ*Control[6]
-
 
 #Creating system of equations for integration
     sysODE = [(X, pX), (Y, pY), (Z, pZ), (pX, d2X), (pY, d2Y), (pZ, d2Z)]
 
+#returning ODE system in form [1x6] List of heyoka expressions
     return sysODE
