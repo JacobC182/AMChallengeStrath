@@ -1,15 +1,14 @@
 #This file contains coordinate system conversion functions
 #For converting between a geocentric cartesian system and Orbital elements and opposite
-
 from numpy.ma.core import dot
+
+#importing NumPy library
+import numpy as np
 
 def vec2orb(pos, vel):
 #Function for converting a state vector to orbital elements (Around Earth/Geocentric frame)
 #UNITS - KM, KM/s (INPUTS)
 #OUTPUT UNITS ARE: KM, RADIANS
-
-#importing NumPy library
-    import numpy as np
 
 #Defining constants
     u = np.double(3.986004407799724e+5)   #GM Earth - km3/sec2
@@ -106,3 +105,25 @@ def orb2vec(a, e, i, raan, argp, nu):
 
 def callback1(ta, time, dsign):
     print("callback function triggered")
+
+
+
+#Function for taking in the debris orbital elements
+
+def ElementIn(elementFilePath,fileExtention):
+
+    from os.path import exists
+
+    limiter = " "
+    elements = []
+    i = 0
+
+    while exists((elementFilePath + (str(i)) + fileExtention)):
+
+        elementLine = np.loadtxt(fname = (elementFilePath + str(i) + fileExtention), delimiter = limiter)
+
+        elements.append(list(elementLine))
+
+        i += 1
+
+    return(elements)
