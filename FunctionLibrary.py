@@ -127,3 +127,20 @@ def ElementIn(elementFilePath,fileExtension):
         i += 1
 
     return(elements)
+
+
+#Collision detection callback function
+
+def CollisionCB(ta, time, d_sign):
+    print("Collision Detected")
+
+    file = open("Collisions.txt", "a+")
+
+    savestate = [time, ta.state[0], ta.state[1], ta.state[2], ta.state[3], ta.state[4], ta.state[5]]
+
+    np.savetxt(file, [savestate])
+
+    file.close()
+
+
+#Collision detection conditional function
