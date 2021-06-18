@@ -110,7 +110,7 @@ def callback1(ta, time, dsign):
 
 #Function for taking in the debris orbital elements
 
-def ElementIn(elementFilePath,fileExtention):
+def ElementIn(elementFilePath,fileExtension):
 
     from os.path import exists
 
@@ -118,9 +118,9 @@ def ElementIn(elementFilePath,fileExtention):
     elements = []
     i = 0
 
-    while exists((elementFilePath + (str(i)) + fileExtention)):
+    while exists((elementFilePath + (str(i)) + fileExtension)):
 
-        elementLine = np.loadtxt(fname = (elementFilePath + str(i) + fileExtention), delimiter = limiter)
+        elementLine = np.loadtxt(fname = (elementFilePath + str(i) + fileExtension), delimiter = limiter)
 
         elements.append(list(elementLine))
 
