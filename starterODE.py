@@ -130,13 +130,13 @@ def ODE():
     dXdt = VX
     dYdt = VY
     dZdt = VZ
-    #dVXdt = fKepX + fJ2X + fC22X + fS22X + fSunX + fMoonX + fSRPX
-    #dVYdt = fKepY + fJ2Y + fC22Y + fS22Y + fSunY + fMoonY + fSRPY
-    #dVZdt = fKepZ + fJ2Z + fC22Z + fS22Z + fSunZ + fMoonZ + fSRPZ
+    dVXdt = fKepX + fJ2X + fC22X + fS22X + fSunX + fMoonX + fSRPX
+    dVYdt = fKepY + fJ2Y + fC22Y + fS22Y + fSunY + fMoonY + fSRPY
+    dVZdt = fKepZ + fJ2Z + fC22Z + fS22Z + fSunZ + fMoonZ + fSRPZ
 
-    dVXdt = fKepX + fSRPX
-    dVYdt = fKepY + fSRPY
-    dVZdt = fKepZ + fSRPZ
+    #dVXdt = fKepX + fSRPX
+    #dVYdt = fKepY + fSRPY
+    #dVZdt = fKepZ + fSRPZ
 
 
 

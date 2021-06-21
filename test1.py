@@ -37,9 +37,11 @@ def Solution(t, initial, AM):
 
     grid = timeVector[1:-1]
 
-    output = ta.propagate_grid(grid)
-
-    return output[4]
+    #output = ta.propagate_grid(grid)
+    output = ta.propagate_until(t)
+    print(ta.state)
+    print("-------------------")
+    return ta.state
 
 def realSolution(t, AM):
 
@@ -49,20 +51,22 @@ def realSolution(t, AM):
         for j in range(3):
             initial.append(debVector[0][i][j])
 
-    print(initial)
-    return(Solution(t, list(initial), AM))
+    #print(initial)
+    return(Solution(t, initial, AM))
 
-AMguess = 1
+AMguess = 10
 
 
 initial0 = []
 for k in range(3):
     for i in range(2):
         for j in range(3):
-            initial0.append(debVector[k][i][j])
+            initial0.append(debVector[k+1][i][j])
 
 initial0 = np.reshape(initial0, [3, 6])
 
-optimumRatio, covarianceMatrix = optimization.curve_fit(f = realSolution, xdata = timeVector[1:-1], ydata = initial0, p0 = AMguess, bounds = [10**-0.5, 10**1.8])
+timeVector0 = timeVector.pop(0)
+
+optimumRatio, covarianceMatrix = optimization.curve_fit(f = realSolution, xdata = timeVector0, ydata = initial0, p0 = AMguess, bounds = [10**-0.5, 10**1.8])
 
 print(optimumRatio)
