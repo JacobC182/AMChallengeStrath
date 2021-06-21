@@ -1,5 +1,6 @@
 #This file contains coordinate system conversion functions
 #For converting between a geocentric cartesian system and Orbital elements and opposite
+from numpy.lib.function_base import median
 from numpy.ma.core import dot
 
 #importing NumPy library
@@ -143,6 +144,21 @@ def CollisionCB(ta, time, d_sign):
     file.close()
 
 
-#Collision detection conditional function
 
-#github test 12345
+#Function that calculates eccentric anomaly using Newton-Raphson method
+def EccentricAnomalySolver(mean, e):
+
+    import math as ma
+
+    if e > 0.5:
+        e0 = 3.14159
+    else:
+        e0 = mean
+#while using error/corrector term condition
+    while abs(e0 - (mean+e*ma.sin(e0)))/(1-e*ma.cos(e0)) > 0.0001:
+#n-r method
+        e1 = e0 - ((e0 - (mean+e*ma.sin(e0)))/(1-e*ma.cos(e0)))
+
+        e0 = e1
+
+    return(e0)

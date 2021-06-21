@@ -1,23 +1,34 @@
 #Andrea Milani Challenge - Main Py Script
 
-#Importing time module - to measure script execution time
+#Import Libraries
 import time
-scriptStartTime = time.time()
-
-#Importing ODE system from ODE function file
-from starterODE import ODE
-#Creating ODE system
-
-sysODE = ODE()
-
-#Importing Heyoka.py, NumPy, Math Libraries
 import heyoka as hy
 import numpy as np
 import math as ma
+import pykep as pk
+from joblib.parallel import delayed
+from starterODE import ODE
 
-#Defining initial conditions - UNITS - KM & KM/s
-sysInit = [2.6533e4, 0, 0, 0, 2.2220, 3.1734]
 
+scriptStartTime = time.time()
+#Creating ODE system
+sysODE = ODE()
+
+#
+
+for i in range(100):
+
+    fileNo = i
+    if len(str(fileNo)) == 1:
+        fileNo = int("00" + str(fileNo))
+    elif len(str(fileNo)) == 2:
+        fileNo = int("0" + str(fileNo))
+
+    debFile = open("\data\deb_train\eledebtrain" + str(fileNo) + ".dat", "r")
+
+    debFileLength = len(debFile.readlines())
+
+    
 
 #Creating integrator object
 ta = hy.taylor_adaptive(sysODE,sysInit, pars = [6], tol = 1e-7)

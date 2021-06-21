@@ -1,6 +1,5 @@
 from joblib.parallel import delayed
 from numpy import core
-from Integrator import int1
 from ODE import ODE
 import numpy as np
 import time
