@@ -17,10 +17,20 @@ sysODE = ODE()
 debElements = np.loadtxt("data\deb_train\eledebtrain001.dat")
 
 debVector = []
+timeVector = []
 
 for i in range(len(debElements)):
 
     eAnom = EccentricAnomalySolver(debElements[i][4], debElements[i][2])
-
+    timeVector.append(debElements[i][0])
     debVector.append(pk.par2ic([debElements[i][1], debElements[i][2], debElements[i][3], debElements[i][6], debElements[i][5], eAnom]))
 
+
+def Solution(t, AM, initial):
+
+    ta = hy.taylor_adaptive(sysODE, initial, pars = [AM])
+
+
+
+
+optimization.curve_fit(Solution, timedata, statevector)
