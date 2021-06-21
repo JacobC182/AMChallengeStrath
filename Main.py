@@ -5,10 +5,10 @@ import time
 scriptStartTime = time.time()
 
 #Importing ODE system from ODE function file
-from ODE import ODE
+from starterODE import ODE
 #Creating ODE system
-Control = [1,1,1,1,1,1,1]
-sysODE = ODE(Control)
+
+sysODE = ODE()
 
 #Importing Heyoka.py, NumPy, Math Libraries
 import heyoka as hy
@@ -27,9 +27,6 @@ print(ta)
 print("Taylor Decomposition Size: " + str(len(ta.decomposition)-12) )
 
 #Calculating Orbital Period
-orbRadius = (sysInit[0]**2 + sysInit[1]**2 + sysInit[2]**2)**0.5
-GME = np.double(3.986004407799724e+5)   #GM-Earth (KM3/s2)
-orbPeriod = 2*ma.pi*ma.sqrt((orbRadius**3)/GME)
 
 #creating timestep grid for integrator - UNITS - seconds
 #user controlled start/end/step variables below
@@ -49,21 +46,6 @@ out = ta.propagate_grid(grid)
 scriptExecTime = (time.time() - scriptStartTime)
 print('Script Execution time: ' + str(scriptExecTime)[0:6] + ' seconds')
 
-
-#Printing Initial orbital period - testing
-print("Initial Orbital Period: " + str(orbPeriod*0.00001157407)[0:6] + " Days")
-print("Propagation Period: " + str(grid[-1]*0.00001157407)[0:6] + " Days")
-print("No. Of Orbits:" + str(grid[-1]/orbPeriod)[0:7])
-
-
-#saving propagator output to txt file
-np.savetxt("propOut.txt", out[4],delimiter=',')
-
-#saving time grid to txt file
-np.savetxt("timeOut.txt", grid[:])
-
-#calculating magnitude of body position
-posMagnitude = np.sqrt((out[4][:, 3]**2) + (out[4][:, 4]**2) + (out[4][:, 5]**2))
 
 #importing motplotlib library pyplot method (MATLAB-Like Plotting Module)
 import matplotlib.pyplot as plt
