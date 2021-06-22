@@ -162,3 +162,25 @@ def EccentricAnomalySolver(mean, e):
         e0 = e1
 
     return(e0)
+
+
+#Function that reads debris observation files and returns the converted state vectors and time vector
+def DebrisRead(fileNumber):
+
+    from pykep import par2ic
+
+    filename = "data\deb_train\eledebtrain" + str(fileNumber) + ".dat"
+
+    debElements = np.loadtxt(filename)
+
+    timeVector = []
+    debVector = []
+
+    for i in range(len(debElements)):
+        eAnom = EccentricAnomalySolver(debElements[i][4], debElements[i][2])
+        timeVector.append(debElements[i][0])
+        debVector.append(par2ic([debElements[i][1], debElements[i][2], debElements[i][3], debElements[i][6], debElements[i][5], eAnom]))
+
+    return timeVector, np.reshape(debVector, [len(debElements), 6])
+
+

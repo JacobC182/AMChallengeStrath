@@ -2,8 +2,9 @@
 import scipy
 import numpy as np
 from scipy.integrate import odeint
-kc = 1
-C0 = 2
+import heyoka as hy
+kc = 4
+C0 = 5
 
 
 def GeneralSolver(t,k,C0):
@@ -12,7 +13,8 @@ def GeneralSolver(t,k,C0):
     localC0=C0
     
     def ODEModel(C,t):
-    
+        
+        #hy.make_vars()
         return -localK*C
 
     sol=odeint(ODEModel,localC0,t)

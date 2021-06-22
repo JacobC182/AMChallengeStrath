@@ -134,12 +134,6 @@ def ODE():
     dVYdt = fKepY + fJ2Y + fC22Y + fS22Y + fSunY + fMoonY + fSRPY
     dVZdt = fKepZ + fJ2Z + fC22Z + fS22Z + fSunZ + fMoonZ + fSRPZ
 
-    #dVXdt = fKepX + fSRPX
-    #dVYdt = fKepY + fSRPY
-    #dVZdt = fKepZ + fSRPZ
-
-
-
     systemODE = [(X,dXdt),(Y,dYdt),(Z,dZdt),(VX,dVXdt),(VY,dVYdt),(VZ,dVZdt)]
 
     return (systemODE)
