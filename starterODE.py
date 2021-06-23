@@ -3,7 +3,6 @@ def ODE():
     import heyoka as hk
     import numpy as np
 
-
     GMe = 3.986004407799724e+5 # [km^3/sec^2]
     GMo = 1.32712440018e+11 #[km^3/sec^2]
     GMm = 4.9028e+3 #[km^3/sec^2]
@@ -23,10 +22,11 @@ def ODE():
     Omega_plus_w = (np.pi/180)*282.94 #[rad]
     PSRP = 4.56e-3 #[kg/(km*sec^2)]
 
+    #create heyoka variables
     X,Y,Z = hk.make_vars("X","Y","Z")
     VX,VY,VZ = hk.make_vars("VX","VY","VZ")
 
-    #Sun's position
+#Sun's position
     lo = phi_o + nu_o*hk.time
     lambda_o = Omega_plus_w + lo + (np.pi/180)*( (6892/3600)*hk.sin(lo) + (72/3600)*hk.sin(2*lo) )
     ro = (149.619 - 2.499*hk.cos(lo) - 0.021*hk.cos(2*lo))*(10**6)
@@ -134,6 +134,6 @@ def ODE():
     dVYdt = fKepY + fJ2Y + fC22Y + fS22Y + fSunY + fMoonY + fSRPY
     dVZdt = fKepZ + fJ2Z + fC22Z + fS22Z + fSunZ + fMoonZ + fSRPZ
 
-    systemODE = [(X,dXdt),(Y,dYdt),(Z,dZdt),(VX,dVXdt),(VY,dVYdt),(VZ,dVZdt)]
+    sys = [(X,dXdt),(Y,dYdt),(Z,dZdt),(VX,dVXdt),(VY,dVYdt),(VZ,dVZdt)]
 
-    return (systemODE)
+    return sys

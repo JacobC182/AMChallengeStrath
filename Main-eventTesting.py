@@ -7,10 +7,10 @@ from numpy.core.arrayprint import ComplexFloatingFormat
 scriptStartTime = time.time()
 
 #Importing ODE system from ODE function file
-from ODE import ODE
+from starterODE import ODE
 #Creating ODE system
-Control = [1,1,1,1,1,1,1]
-sysODE = ODE(Control)
+
+sysODE = ODE()
 
 #Importing Heyoka.py, NumPy, Math Libraries
 import heyoka as hy
@@ -31,7 +31,7 @@ ev1 = hy.nt_event((mag1-2.6500e4), FL.CollisionCB)
 
 
 #Creating integrator object
-ta = hy.taylor_adaptive(sysODE,sysInit, pars = [6], tol = 1e-7, nt_events = [ev1])
+ta = hy.taylor_adaptive(sysODE,sysInit, pars = [6], tol = 1e-10, nt_events = [ev1])
 
 #printing taylor series object summary
 print(ta)

@@ -147,15 +147,17 @@ def CollisionCB(ta, time, d_sign):
 
 #Function that calculates eccentric anomaly using Newton-Raphson method
 def EccentricAnomalySolver(mean, e):
-
+    
     import math as ma
+
+    mean = mean * (np.pi/180)
 
     if e > 0.5:
         e0 = 3.14159
     else:
         e0 = mean
 #while using error/corrector term condition
-    while abs(e0 - (mean+e*ma.sin(e0)))/(1-e*ma.cos(e0)) > 0.0001:
+    while abs(e0 - (mean+e*ma.sin(e0)))/(1-e*ma.cos(e0)) > 0.00001:
 #n-r method
         e1 = e0 - ((e0 - (mean+e*ma.sin(e0)))/(1-e*ma.cos(e0)))
 
@@ -177,9 +179,9 @@ def DebrisRead(fileNumber):
     debVector = []
 
     for i in range(len(debElements)):
-        eAnom = EccentricAnomalySolver(debElements[i][4], debElements[i][2])
+        eAnom = EccentricAnomalySolver(debElements[i][4], debElements[i][2])*0.0174532925199
         timeVector.append(debElements[i][0])
-        debVector.append(par2ic([debElements[i][1], debElements[i][2], debElements[i][3], debElements[i][6], debElements[i][5], eAnom]))
+        debVector.append(par2ic([debElements[i][1], debElements[i][2], debElements[i][3]*0.0174532925199, debElements[i][6]*0.0174532925199, debElements[i][5]*0.0174532925199, eAnom],3.986004407799724e+5))
 
     return timeVector, np.reshape(debVector, [len(debElements), 6])
 

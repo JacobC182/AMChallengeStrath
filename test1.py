@@ -23,8 +23,11 @@ for i in range(len(debElements)):
 
     eAnom = EccentricAnomalySolver(debElements[i][4], debElements[i][2])
     timeVector.append(debElements[i][0])
-    debVector.append(pk.par2ic([debElements[i][1], debElements[i][2], debElements[i][3], debElements[i][6], debElements[i][5], eAnom]))
+    debVector.append(pk.par2ic([debElements[i][1], debElements[i][2], debElements[i][3]*(np.pi/180), debElements[i][6]*(np.pi/180), debElements[i][5]*(np.pi/180), eAnom]))
 
+timeVector = np.multiply(timeVector, (24*60*60))
+timeVector0 = np.delete(timeVector, 0)
+print(timeVector0)
 
 def Solution(t, initial, AM):
 
@@ -35,13 +38,13 @@ def Solution(t, initial, AM):
     nPoints = int(abs(timeVector[-1] - timeVector[0]) / stepSize)
     grid = np.linspace(start = timeVector[0], stop = timeVector[-1], num = nPoints, endpoint=True)
 
-    grid = timeVector[1:-1]
-
-    #output = ta.propagate_grid(grid)
-    output = ta.propagate_until(t)
-    print(ta.state)
+    grid = timeVector0
+  
+    output = ta.propagate_grid(grid)
+    #output = ta.propagate_until(t)
+    print(output[4])
     print("-------------------")
-    return ta.state
+    return output[4][:][1]
 
 def realSolution(t, AM):
 
@@ -65,8 +68,11 @@ for k in range(3):
 
 initial0 = np.reshape(initial0, [3, 6])
 
-timeVector0 = timeVector.pop(0)
+initial0 = initial0[:,1]
+print(initial0)
 
-optimumRatio, covarianceMatrix = optimization.curve_fit(f = realSolution, xdata = timeVector0, ydata = initial0, p0 = AMguess, bounds = [10**-0.5, 10**1.8])
 
-print(optimumRatio)
+
+optimumRatio, covarianceMatrix = optimization.curve_fit(f = realSolution, xdata = timeVector0, ydata = initial0[:][1], p0 = AMguess, bounds = [10**-0.5, 10**1.8])
+
+print(optimumRatio, covarianceMatrix)

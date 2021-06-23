@@ -24,12 +24,12 @@ for i in range(100):
     elif len(str(fileNo)) == 2:
         fileNo = int("0" + str(fileNo))
 
-    debFile = open("\data\deb_train\eledebtrain" + str(fileNo) + ".dat", "r")
+    debFile = open("data\deb_train\eledebtrain" + str(fileNo) + ".dat", "r")
 
     debFileLength = len(debFile.readlines())
 
     
-
+sysInit = [1e6,0,0,0,1,0]
 #Creating integrator object
 ta = hy.taylor_adaptive(sysODE,sysInit, pars = [6], tol = 1e-7)
 
