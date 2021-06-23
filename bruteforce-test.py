@@ -16,7 +16,7 @@ AMspacing = 10
 
 #creating AM-ratio grid
 AMgrid = np.linspace(start = 10**-0.5, stop = 10**1.8, num = int((10**1.8 - 10**0.5)/AMspacing), endpoint = True)
-AMgrid = np.multiply(AMgrid, 1e-3)
+AMgrid = np.multiply(AMgrid, 1e-6)
 #AMgrid = [10.32583e-3]
 #Choose debris file to read from file numbering
 fileNum = "001"
@@ -36,7 +36,7 @@ for i in range(2):
 print(vec0)
 #Reading debris observation data time vector and state vectors
 t, vec = DebrisRead(fileNumber= fileNum)
-
+print(vec)
 #Time vector unit conversion days --> secs
 t = np.multiply(t,60*60*24)
 print(t)

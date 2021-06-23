@@ -5,16 +5,16 @@ from starterODE import ODE
 
 sysODE = ODE()
 
-initial = [40538.01113051619, 10803.588965445128, -3143.1486811323193, -0.7408330964852461, 2.9707963804406887, 0.37782171710291634]
+initial = [-3.84481241e+04, -1.13678964e+04, -1.76824887e+03, 9.17589734e-01, -3.00803552e+00, -7.38669271e-01]
 
-AMratio = 10.32583*1e-3
+AMratio = 10.32583*1e-6
 
-ta = hy.taylor_adaptive(sys = sysODE, state = initial, pars = [AMratio])
+ta = hy.taylor_adaptive(sys = sysODE, state = initial, pars = [AMratio], high_accuracy=True)
 
-ta.time = -3815.00*60*24*60
+ta.time = -1935.00*60*24*60
 
 
-status, min_h, max_h, nsteps = ta.propagate_until(t=-1935.00*24*60*60)
+status, min_h, max_h, nsteps = ta.propagate_until(t=-255.00*24*60*60)
 
 print("Outcome      : {}".format(status))
 print("Min. timestep: {}".format(min_h))
@@ -22,3 +22,5 @@ print("Max. timestep: {}".format(max_h))
 print("Num. of steps: {}".format(nsteps))
 print("Current time : {}\n".format(ta.time))
 print(ta)
+
+correct = [3.17895790e+04,  1.33646409e+04, 3.47242170e+03, -1.43104345e+00, 3.30468682e+00, 7.77195904e-01]

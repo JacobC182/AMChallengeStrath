@@ -44,7 +44,7 @@ def Solution(t, initial, AM):
     #output = ta.propagate_until(t)
     print(output[4])
     print("-------------------")
-    return output[4][:][1]
+    return output[4]
 
 def realSolution(t, AM):
 
@@ -57,7 +57,7 @@ def realSolution(t, AM):
     #print(initial)
     return(Solution(t, initial, AM))
 
-AMguess = 10
+AMguess = 10*1e-6
 
 
 initial0 = []
@@ -73,6 +73,6 @@ print(initial0)
 
 
 
-optimumRatio, covarianceMatrix = optimization.curve_fit(f = realSolution, xdata = timeVector0, ydata = initial0[:][1], p0 = AMguess, bounds = [10**-0.5, 10**1.8])
+optimumRatio, covarianceMatrix = optimization.curve_fit(f = realSolution, xdata = timeVector0, ydata = initial0[:][1], p0 = AMguess, bounds = [(10**-0.5)*1e-6, (10**1.8)*1e-6])
 
 print(optimumRatio, covarianceMatrix)
