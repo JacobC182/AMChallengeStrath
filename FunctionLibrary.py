@@ -170,6 +170,7 @@ def EccentricAnomalySolver(mean, e):
 def DebrisRead(fileNumber):
 
     from pykep import par2ic
+    import numpy as np
 
     filename = "data\deb_train\eledebtrain" + str(fileNumber) + ".dat"
 
@@ -179,9 +180,9 @@ def DebrisRead(fileNumber):
     debVector = []
 
     for i in range(len(debElements)):
-        eAnom = EccentricAnomalySolver(debElements[i][4], debElements[i][2])*0.0174532925199
+        eAnom = EccentricAnomalySolver(debElements[i][4], debElements[i][2])
         timeVector.append(debElements[i][0])
-        debVector.append(par2ic([debElements[i][1], debElements[i][2], debElements[i][3]*0.0174532925199, debElements[i][6]*0.0174532925199, debElements[i][5]*0.0174532925199, eAnom],3.986004407799724e+5))
+        debVector.append(par2ic([debElements[i][1], debElements[i][2], debElements[i][3]*(np.pi/180), debElements[i][6]*(np.pi/180), debElements[i][5]*0.0174532925199, eAnom],3.986004407799724e+5))
 
     return timeVector, np.reshape(debVector, [len(debElements), 6])
 
