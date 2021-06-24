@@ -1,13 +1,13 @@
 import time
 import heyoka as hy
 import numpy as np
-import math as ma
-import pykep as pk
-from joblib.parallel import delayed
+from numpy.lib.function_base import cov
 from starterODE import ODE
 from FunctionLibrary import *
 import scipy.optimize as optimization
 
+#Storing script starting time for run-time calculation
+ScriptStartTime = time.time()
 
 #Creating ODE system
 sysODE = ODE()
@@ -15,8 +15,17 @@ sysODE = ODE()
 #Choosing debris file to read
 debrisNumber = "001"
 
-#Reading debris data file
+#Reading debris data file into time and state vector lists
 debrisTime, debrisState = DebrisRead(debrisNumber)
+
+#Reading debris elements from file into time and orbital elements lists
+unusedT, debrisElement = DebrisReadElement(debrisNumber)
+
+#extracting eccentricity only into list
+eccList = debrisElement[:,1]
+
+#Removing initial eccentricity from ecc list
+eccList = np.delete(eccList, 0)
 
 #Converting debrisTime from days to seconds
 debrisTime = np.multiply(debrisTime, (60*60*24))
@@ -29,23 +38,7 @@ startState = debrisState[0][:]
 
 #Removing initial time and state from time and state vectors
 debrisTime = np.delete(debrisTime, 0)
-for i in range(6):
-    debrisState = np.delete(debrisState, [0])
 
-
-#reshaping state vector from 1D to 2D
-debrisState = np.reshape(debrisState, [-1,6])
-
-#extracting positional values only from state vector
-debrisStatePos = debrisState[:,0:3]
-
-#creating empty magnitude array
-debrisStateMag = []
-
-#calculating magnitude and adding to array, for each given observation
-for i in range(len(debrisStatePos)):
-    debrisStateMag.append(np.linalg.norm(debrisStatePos[i]))
-print(debrisStateMag)
 
 #Creating heyoka integrator object with ODE system
 ta = hy.taylor_adaptive(sys = sysODE, state = startState)
@@ -63,24 +56,29 @@ def Solution(t, AM):
     #removing unnecessary data from integrator output
     out = out[4]
 
-    #creating empty magnitude storage array
-    mag = []
+    #creating empty eccentricity storage array
+    ecc = []
 
-    #calculating magnitude of state vectors for each vector produced by time grid
+    #calculating eccentricity for each time-grid state vector
     for i in range(len(out)):
-        mag.append(np.linalg.norm(out[i, 0:3]))
-
+        ecc.append(rv2orb(out[i])[1])
     
-    #returning system state vector
-    print("Difference:" + str(np.subtract(mag, debrisStateMag)))
+    #printing ON-THE-FLY results
+    print("Am-Ratio:  " + str(AM*1e6)[0:6] )
+    print("Eccentricity Error: " + str(np.subtract(eccList, ecc)) )
+    print("<---------------------------->")
     
-    return mag
+    #returning eccentricity (ydata)
+    return ecc
 
 #Setting initial AM-ratio guess
-AMguess = 12*1e-6
+AMguess = 40*1e-6
 
 #Curve fitting ODE function - parameter estimation
-optimumRatio, covarianceMatrix = optimization.curve_fit(f = Solution, xdata = debrisTime, ydata = debrisStateMag, p0 = AMguess, bounds = [(10**-0.5)*1e-6, (10**1.8)*1e-6])
+#optimumRatio, covarianceMatrix = optimization.curve_fit(f = Solution, xdata = debrisTime, ydata = eccList, p0 = AMguess, bounds = [(10**-0.5)*1e-6, (10**1.8)*1e-6])
+optimumRatio, covarianceMatrix = optimization.curve_fit(f = Solution, xdata = debrisTime, ydata = eccList, bounds = [(10**-0.5)*1e-6, (10**1.8)*1e-6])
+#Printing final result
+print("Fitted AM-Ratio:" + str(optimumRatio[0]*1e6))
 
-
-print("Fitted AM-Ratio:" + str(optimumRatio[0]*1e6)[0:6])
+#Printing script run-time
+print("Script Finished In: " + str(time.time() - ScriptStartTime)[0:7] + "s")

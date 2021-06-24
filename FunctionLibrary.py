@@ -200,5 +200,15 @@ def DebrisReadElement(fileNumber):
     return timeVector, debVector
 
 
-#Function that converts state vector to orbital elements
+#Function that converts state vector to orbital elements - INPUT = 1x6 state vector
+def rv2orb(state):
 
+    from pykep import ic2par
+
+    r = state[0:3]
+
+    v = state[3:6]
+
+    orb = ic2par(r,v,3.986004407799724e+5)
+
+    return orb
