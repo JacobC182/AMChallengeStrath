@@ -187,3 +187,18 @@ def DebrisRead(fileNumber):
     return timeVector, np.reshape(debVector, [len(debElements), 6])
 
 
+#Function that reads debris observation files and returns time vector and ORBITAL ELEMENTS
+def DebrisReadElement(fileNumber):
+
+    filename = "data\deb_train\eledebtrain" + str(fileNumber) + ".dat"
+
+    debElements = np.loadtxt(filename)
+
+    timeVector = debElements[:,0]
+    debVector = debElements[:, 1:-1:1]
+
+    return timeVector, debVector
+
+
+#Function that converts state vector to orbital elements
+
