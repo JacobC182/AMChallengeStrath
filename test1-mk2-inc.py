@@ -21,11 +21,14 @@ debrisTime, debrisState = DebrisRead(debrisNumber)
 #Reading debris elements from file into time and orbital elements lists
 unusedT, debrisElement = DebrisReadElement(debrisNumber)
 
-#extracting eccentricity only into list
-eccList = debrisElement[:,1]
+#extracting inclination only into list
+incList = debrisElement[:,2]
 
-#Removing initial eccentricity from ecc list
-eccList = np.delete(eccList, 0)
+#Converting inclination values from degrees to radians
+incList = np.multiply(incList, np.pi/180)
+
+#Removing initial inclination from ecc list
+incList = np.delete(incList, 0)
 
 #Converting debrisTime from days to seconds
 debrisTime = np.multiply(debrisTime, (60*60*24))
@@ -41,7 +44,7 @@ debrisTime = np.delete(debrisTime, 0)
 
 
 #Creating heyoka integrator object with ODE system
-ta = hy.taylor_adaptive(sys = sysODE, state = startState, tol=1e-8)
+ta = hy.taylor_adaptive(sys = sysODE, state = startState, tol=1e-20)
 
 #defining ODE result returning function
 def Solution(t, AM):
@@ -56,26 +59,26 @@ def Solution(t, AM):
     #removing unnecessary data from integrator output
     out = out[4]
 
-    #creating empty eccentricity storage array
-    ecc = []
+    #creating empty inclination storage array
+    inc = []
 
-    #calculating eccentricity for each time-grid state vector
+    #calculating inclination for each time-grid state vector
     for i in range(len(out)):
-        ecc.append(rv2orb(out[i])[1])
+        inc.append(rv2orb(out[i])[2])
     
     #printing ON-THE-FLY results
     print("Am-Ratio:  " + str(AM*1e6)[0:6] )
-    print("Eccentricity Error: " + str(np.subtract(eccList, ecc)) )
+    print("Inclination Error: " + str(np.subtract(incList, inc)) )
     print("<---------------------------->")
     
-    #returning eccentricity (ydata)
-    return ecc
+    #returning inclination (ydata)
+    return inc
 
 #Setting initial AM-ratio guess
-AMguess = 8*1e-6
+AMguess = 4*1e-6
 
 #Curve fitting ODE function - parameter estimation
-optimumRatio, covarianceMatrix = optimization.curve_fit(f = Solution, xdata = debrisTime, ydata = eccList, p0 = AMguess, bounds = [(10**-0.5)*1e-6, (10**1.8)*1e-6])
+optimumRatio, covarianceMatrix = optimization.curve_fit(f = Solution, xdata = debrisTime, ydata = incList, p0 = AMguess, bounds = [(10**-0.5)*1e-6, (10**1.8)*1e-6])
 #optimumRatio, covarianceMatrix = optimization.curve_fit(f = Solution, xdata = debrisTime, ydata = eccList, bounds = [(10**-0.5)*1e-6, (10**1.8)*1e-6])
 #Printing final result
 print("Fitted AM-Ratio:" + str(optimumRatio[0]*1e6))

@@ -9,7 +9,7 @@ initial = [-3.84481241e+04, -1.13678964e+04, -1.76824887e+03, 9.17589734e-01, -3
 
 AMratio = 10.32583*1e-6
 
-ta = hy.taylor_adaptive(sys = sysODE, state = initial, pars = [AMratio], high_accuracy=True)
+ta = hy.taylor_adaptive(sys = sysODE, state = initial, pars = [AMratio], high_accuracy=True, tol = 1e-17)
 
 ta.time = -1935.00*60*24*60
 

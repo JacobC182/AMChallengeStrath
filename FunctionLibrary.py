@@ -145,7 +145,7 @@ def CollisionCB(ta, time, d_sign):
 
 
 
-#Function that calculates eccentric anomaly using Newton-Raphson method
+#Function that calculates eccentric anomaly using Newton-Raphson method from the mean anomaly and eccentricity
 def EccentricAnomalySolver(mean, e):
     
     import math as ma
@@ -212,3 +212,14 @@ def rv2orb(state):
     orb = ic2par(r,v,3.986004407799724e+5)
 
     return orb
+
+#Function that reads and returns the initial state information from the labels-training file
+def DebrisLabel(fileNumber):
+
+    n = int(fileNumber) - 1 #convert filenumber specifier from string to integer (Why did you have to list the files with leading zeros!?!)
+
+    bigList = np.loadtxt("data\labels_train.dat")   #reading entire labels_train file
+
+    return bigList[n,:] #returning only the row corresponding to the chosen debris file number
+
+

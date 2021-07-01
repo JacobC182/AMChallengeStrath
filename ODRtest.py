@@ -36,13 +36,17 @@ debVector = np.reshape(debVector, [4,6])
 ta = hy.taylor_adaptive(sys = sysODE, state = initVector, pars = [AM0], tol = 1e-9)
 
 #Defining ODE solution function
-def Solution(AM):
+def Solution(AM1):
     
     ta.time = timeVector[0]
     ta.state = initVector
-    ta.pars[0] = [AM]
+    ta.pars[0] = [AM1]
 
     return ta.propagate_grid(timeVector)[4]
+
+
+
+
 
 
 ODEmodel = Model(Solution, param_names="AM")
