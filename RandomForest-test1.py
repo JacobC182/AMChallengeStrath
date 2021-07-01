@@ -4,7 +4,7 @@ import numpy as np
 from FunctionLibrary import *
 
 #Creating Random Forest Regressor (Black Box) Object
-Regressor = RandomForestRegressor()
+Regressor = RandomForestRegressor(n_estimators=2000, criterion="mse", n_jobs=-1, verbose=1)
 
 
 #Creating empty X and Y arrays
@@ -43,14 +43,15 @@ for i in range(1, 101, 1):
 
             X.append(debrisData[j,:])
     
-    print("Finished Reading File: " + fileNumberString)
+    #print("Finished Reading File: " + fileNumberString)
 
 print("Starting Training")
 Regressor.fit(X, AMratio)
 
-#wronganswer = Regressor.predict([[-1935.00,   42276.74,  0.0507489,    13.4614,   107.7131,   188.8823, 5.8539]])
-wronganswer = Regressor.predict([[-235.00  , 42249.88 , 0.1497848  ,  20.2557  ,  79.3143  , 360.5050  , 356.3467]])
+sample = np.loadtxt("data\deb_train\eledebtrain100.dat")
 
+
+wronganswer = Regressor.predict([sample])
 
 
 print(wronganswer)
