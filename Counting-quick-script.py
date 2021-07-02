@@ -33,3 +33,6 @@ for i in lengthsTrain:
 
 print("No. of Debris with only 1 observation: " + str(only1) )
 print("No. of Training Debris with only 1 observation: " + str(only1Train) )
+print("---")
+print("Total Debris Observations: " + str(sum(lengths)))
+print("Total Training Debris Observations: " + str(sum(lengthsTrain)))
