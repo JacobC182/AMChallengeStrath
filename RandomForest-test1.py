@@ -1,7 +1,6 @@
 from os import write
 from sklearn.ensemble import RandomForestRegressor
 import numpy as np
-from FunctionLibrary import *
 
 #Creating Random Forest Regressor (Black Box) Object
 Regressor = RandomForestRegressor(n_estimators=2000, criterion="mse", n_jobs=-1, verbose=1)
@@ -47,7 +46,7 @@ for i in range(1, 100 +1, 1):
 print("Starting Training")
 Regressor.fit(X, AMratio)   #Training "Black Box" Regressor to training data
 
-sample = np.loadtxt("data\deb_train\eledebtrain005.dat")
+sample = np.loadtxt("data\deb_train\eledebtrain001.dat")
 
 print("Finished Training, Starting Prediction")
 wronganswer = Regressor.predict(sample)       #Predicting output value from input sample data using trained model

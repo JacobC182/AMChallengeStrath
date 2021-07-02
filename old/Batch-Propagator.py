@@ -52,6 +52,8 @@ for debris in np.loadtxt("data\labels_train.dat")[0:100,:]:
     for sighting in debrisData[:,1:7]:
         observedDebris.append(sighting)
 
+    tGrid = np.reshape(tGrid, [1, -1])
+    
     for result in propState:
 
         orb = rv2orb(result)

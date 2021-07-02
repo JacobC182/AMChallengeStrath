@@ -1,6 +1,6 @@
 from joblib.parallel import delayed
 from numpy import core
-from starterODE import ODE
+from ODE import ODE
 import numpy as np
 import time
 import heyoka as hy
