@@ -282,3 +282,53 @@ def CRAMForestRegressorModel():
     Regressor.fit(X, AMratio)   #Training "Black Box" Regressor to training data
 
     return Regressor    #Returning Trained Regressor Model Object
+
+
+
+
+#Function that reads ALL satellite trajectory data and returns it as a 3D array, First axis/index = satellite number
+def SatRead():
+
+    allSatData = []
+
+    for i in range(1, 100 +1, 1):
+        fileNumberString = ""   #creating empty string for converting int (i) to string to use as sequential file number
+
+        if len(str(i)) == 1:    #Creating appropriate string of file number "001" - "100"
+            fileNumberString = "00" + (str(i))
+        elif len(str(i)) == 2:
+            fileNumberString = "0" + (str(i))
+        else:
+            fileNumberString = (str(i))
+    
+        SatData = np.loadtxt("data\sat\elesat" + fileNumberString + ".dat")     #Reading individual satellite trajectory file
+        allSatData.append(SatData)      #Adding SatData (read-in file) to 3D array of all trajectory data
+
+    return allSatData       #Returning complete 3d array of all satellite data
+
+
+
+
+
+#Function that returns the string of the input integer from 1-100, with a str-length of 3, filled with leading zeros
+#eg 1 = "001", 57 = "057"
+def FileStr(i):
+
+    fileNumberString = ""   #creating empty string for converting int (i) to string to use as sequential file number
+
+    if len(str(i)) == 1:    #Creating appropriate string of file number "001" - "100"
+        fileNumberString = "00" + (str(i))
+    elif len(str(i)) == 2:
+        fileNumberString = "0" + (str(i))
+    else:
+        fileNumberString = (str(i))
+    
+    return fileNumberString
+
+
+
+
+#Function that returns the MEAN SQUARE ERROR from a set of "actual" and "predicted" values - TAKEN FROM: https://www.statology.org/mean-squared-error-python/
+def mse(actual, pred): 
+    actual, pred = np.array(actual), np.array(pred)
+    return np.square(np.subtract(actual,pred)).mean()
