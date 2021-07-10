@@ -5,6 +5,8 @@ from numpy.ma.core import dot
 
 #importing NumPy library
 import numpy as np
+from pandas.core.accessor import register_dataframe_accessor
+import pykep
 
 def vec2orb(pos, vel):
 #Function for converting a state vector to orbital elements (Around Earth/Geocentric frame)
@@ -166,7 +168,7 @@ def EccentricAnomalySolver(mean, e):
     else:
         e0 = mean
 #while using error/corrector term condition
-    while abs(e0 - (mean+e*ma.sin(e0)))/(1-e*ma.cos(e0)) > 0.00001:
+    while abs(e0 - (mean+e*ma.sin(e0)))/(1-e*ma.cos(e0)) > 0.000001:
 #n-r method
         e1 = e0 - ((e0 - (mean+e*ma.sin(e0)))/(1-e*ma.cos(e0)))
 
@@ -228,6 +230,23 @@ def rv2orb(state):
 
     return orb
 
+#Function that converts state vector to orbital elements - INPUT = 1x6 state vector - OUTPUTS in observation file format
+def rv2orbF(state):
+
+    from pykep import ic2par
+
+    r = state[0:3]
+
+    v = state[3:6]
+
+    orb = ic2par(r,v,3.986004407799724e+5)
+
+    MeanAnom = orb[5]  - (orb[1]*np.sin(orb[5]))
+
+    orb = [orb[0], orb[1], orb[2]*(180/np.pi), MeanAnom, orb[4]*(180/np.pi), orb[3]*(180/np.pi)]
+
+    return orb
+
 
 
 
@@ -243,23 +262,26 @@ def DebrisLabel(fileNumber):
 
 
 
-#Function that creates and trains the AREA_TO_MASS ratio Machine Learning Model! - Uses the Random Forest-Decision Tree Regressor Model
-def CRAMForestRegressorModel():
+#Function that creates and trains the AREA_TO_MASS ratio Machine Learning Model! - Uses the Random Forest-Decision Tree Regressor Model (Not Anymore) ->Gradient Boosting Regressor
+def CRAMRegressorModel():
 
-    from sklearn.ensemble import RandomForestRegressor      #importing random forest regressor machine model from SKlearn library
+    from sklearn import preprocessing
 
-    #Creating Random Forest Regressor (Black Box) Object
-    Regressor = RandomForestRegressor(n_estimators=2000, criterion="mse", n_jobs=-1)
+    #Importing Gradient Boost Regressor (Black Box) Class - Used to instantiate Regressor Model Objects - From Scikit-Learn (SKlearn) Machine Learning Library
+    from sklearn.ensemble import GradientBoostingRegressor
+    #Creating Gradient Boosting Regressor (Black Box) Object
+    Regressor = GradientBoostingRegressor(n_estimators=2000, max_depth=2)
 
     X = []      #Create empty dataset arrays
     AMratio = []
 
     #Reading training data output values into file
     debrisTrainRatio = np.loadtxt("data\labels_train.dat")[:,1]
-
+    DebrisTrainState = np.loadtxt("data\labels_train.dat")[:,2:9]
+    
 #READING DATA----------------------------------------------------------------------------------
 #Iterating over a range 1-100 step=1, going through all 100 debris data files
-    for i in range(1, 100 +1, 1):
+    for i in range(1, 75 +1, 1):
         fileNumberString = ""   #creating empty string for converting int (i) to string to use as sequential file number
 
         if len(str(i)) == 1:    #Creating appropriate string of file number "001" - "100"
@@ -268,7 +290,7 @@ def CRAMForestRegressorModel():
             fileNumberString = "0" + (str(i))
         else:
             fileNumberString = (str(i))
-
+    
         debrisData = np.loadtxt("data\deb_train\eledebtrain" + fileNumberString + ".dat")   #Reading each debris observation file individually
 
         if len(np.shape(debrisData)) == 1:      #Appending debris data and AM ratio to input and output training arrays respectivel
@@ -279,9 +301,15 @@ def CRAMForestRegressorModel():
                 AMratio.append(debrisTrainRatio[i-1])
                 X.append(debrisData[j,:])
 #READING DATA END------------------------------------------------------------------------------
+
     Regressor.fit(X, AMratio)   #Training "Black Box" Regressor to training data
 
+    print("Fitting Score: " + str(Regressor.score(X, AMratio)) )
+    #print("Feature Importances")
+    #print(Regressor.feature_importances_)
+    
     return Regressor    #Returning Trained Regressor Model Object
+
 
 
 
@@ -332,3 +360,16 @@ def FileStr(i):
 def mse(actual, pred): 
     actual, pred = np.array(actual), np.array(pred)
     return np.square(np.subtract(actual,pred)).mean()
+
+
+
+
+#Function that converts system of orbital elements taken from data files in form a,e,i,M,w,W, returns 1x0 state vector in KM, KM/s, around Earth
+def orb2rv(startState):
+
+    startR, startV = pykep.par2ic([startState[0], startState[1], startState[2]*(np.pi/180), startState[5]*(np.pi/180), startState[4]*(np.pi/180), EccentricAnomalySolver(startState[3], startState[1])], 3.986004407799724e+5)
+
+    return np.concatenate((startR, startV), axis=0)
+
+
+
