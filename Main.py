@@ -115,14 +115,19 @@ print("Run Time: " + str(time.time()- st1)[0:7] + "s")
 
 #
 #TODO
-#Create Heyoka non-terminal event function to detect when possible collisions accur
+#Create collision detection system
+#DONE
 #
 #
-#Create event function callback method that logs data of possible collisions when they are detected
 #
 #
 #Write implementation of integration in PARALLEL :( (joblib library)
+#DONE
 #
+#
+#
+#
+#DE-NOISE debris observation data :()
 #
 #
 #
