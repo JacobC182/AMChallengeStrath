@@ -1,7 +1,9 @@
 #This file contains coordinate system conversion functions
 #For converting between a geocentric cartesian system and Orbital elements and opposite
+from copy import Error
+from numpy.lib.financial import _npv_dispatcher
 from numpy.lib.function_base import median
-from numpy.ma.core import dot
+from numpy.ma.core import dot, shape
 
 #importing NumPy library
 import numpy as np
@@ -243,7 +245,7 @@ def rv2orbF(state):
 
     MeanAnom = orb[5]  - (orb[1]*np.sin(orb[5]))
 
-    orb = [orb[0], orb[1], orb[2]*(180/np.pi), MeanAnom, orb[4]*(180/np.pi), orb[3]*(180/np.pi)]
+    orb = [orb[0], orb[1], orb[2]*(180/np.pi), MeanAnom*(180/np.pi), orb[4]*(180/np.pi), orb[3]*(180/np.pi)]
 
     return orb
 
@@ -264,8 +266,6 @@ def DebrisLabel(fileNumber):
 
 #Function that creates and trains the AREA_TO_MASS ratio Machine Learning Model! - Uses the Random Forest-Decision Tree Regressor Model (Not Anymore) ->Gradient Boosting Regressor
 def CRAMRegressorModel():
-
-    from sklearn import preprocessing
 
     #Importing Gradient Boost Regressor (Black Box) Class - Used to instantiate Regressor Model Objects - From Scikit-Learn (SKlearn) Machine Learning Library
     from sklearn.ensemble import GradientBoostingRegressor
@@ -373,3 +373,79 @@ def orb2rv(startState):
 
 
 
+
+
+#Function that creates and trains a Model for error/noise correction of the debris observations!
+def DenoiseModel():     #DOES NOT WORK - DOES NOT WORK - DOES NOT WORK
+    
+    from sklearn.ensemble import RandomForestRegressor
+
+    import heyoka as hy
+    from ODE import ODE
+
+    ta = hy.taylor_adaptive(sys = ODE(), state = [0,0,0,0,0,0])
+
+    originData = np.loadtxt("data\labels_train.dat")
+
+    AMratio = originData[:,1]
+    startTime = np.multiply(originData[:,2], (60*60*24) )
+
+    propagatedData = []
+    observedData = []
+
+    for i in range(5):
+        ta.time = startTime[i]
+        ta.state[:] = orb2rv(originData[i,3:9])
+        ta.pars[0] = AMratio[i] *1e-6
+
+        fileNo = FileStr(i+1)
+        print(i)
+        obs = np.loadtxt("data\deb_train\eledebtrain" + fileNo + ".dat")
+
+        obs = np.reshape(obs, [-1,7])
+
+        obsTimes = obs[:,0]
+
+        obsTimes = np.multiply(obsTimes, (60*60*24) )
+
+
+        vecOut = ta.propagate_grid(grid=obsTimes)[4]
+
+        out = []
+
+        for j in vecOut:
+            out.append(rv2orbF(j))
+        
+        out = np.reshape(out, [-1,6])
+        
+        propagatedData.append(out)
+        observedData.append(obs[:,1:7])
+
+    print(np.shape(propagatedData))
+    propagatedData = np.reshape(propagatedData, [-1,6])
+    observedData = np.reshape(observedData, [-1,6])
+
+    Model = RandomForestRegressor(n_estimators=2000)
+
+    Model.fit(observedData, propagatedData)
+
+
+
+
+def DeNoise2():
+    from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
+    from sklearn.neighbors import KNeighborsRegressor, RadiusNeighborsRegressor
+    from sklearn.neural_network import MLPRegressor
+
+    ErrorRegressor = RandomForestRegressor(n_estimators=1000, n_jobs=-1)
+    ErrorRegressor = RadiusNeighborsRegressor(n_neighbors=100)
+    ErrorRegressor = ExtraTreesRegressor()
+
+    observedInput = np.loadtxt("observedData.txt",delimiter=",")
+    propagatedOutput = np.loadtxt("propagatedData.txt",delimiter=",")
+
+    ErrorRegressor.fit(observedInput, propagatedOutput)
+
+    #deNoise = ErrorRegressor.predict([[42276.74 , 0.0507489  ,  13.4614  , 107.7131 ,  188.8823  ,   5.8539]])
+
+    return ErrorRegressor

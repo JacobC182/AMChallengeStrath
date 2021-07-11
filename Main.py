@@ -4,7 +4,7 @@
 import numpy as np
 import heyoka as hy
 from numpy.core.function_base import linspace
-from FunctionLibrary import CRAMRegressorModel, FileStr, mse, SatRead, orb2rv, rv2orbF
+from FunctionLibrary import CRAMRegressorModel, FileStr, mse, SatRead, orb2rv, rv2orbF, DeNoise2
 from ODE import ODE
 import joblib as jl
 from joblib.parallel import delayed
@@ -49,7 +49,7 @@ SatData = np.reshape(SatData, [100,-1,7])
 SatTimeGrid = SatData[0,:,0]                                #Creating 1D list of satellite trajectory observation time grid
 SatTimeGrid = np.multiply(SatTimeGrid, 60*60*24)            #Converting time grid from days to seconds
 
-
+DeNoise = DeNoise2()            #Creating Error-Correction Trained Model
 
 ta = hy.taylor_adaptive(sys = ODE(), state = [0,0,0,0,0,0])     #Creating Heyoka integrator object configured with the dynamical ODE system
 
@@ -65,9 +65,11 @@ def Integrator(startTime, startState, AMratio, debrisNum):
     tGrid = np.flip(tGrid)                                      #Flipping time grid to go back-in-time (back-propagation)
 
     sat = SatData[:,0:timeIndex,1:7]
-
+    sat = np.flip(sat)
 
     startVec = orb2rv(startState)       #Converting orbital elements from file to state vector - See Function Library
+    #print(DeNoise.predict([startState]))
+    #startVec =  orb2rv( DeNoise.predict([startState])[0] )         #DENOISING INPUT OBSERVATION
 
     ta.time = startTime          #Setting integrator start time (seconds)
     ta.state[:] = startVec       #Setting integratior initial state
@@ -85,22 +87,27 @@ def Integrator(startTime, startState, AMratio, debrisNum):
     nCollisions = 0
 
     #SETTING TOLERANCE VALUES
-    kmTol = 700
+    kmTol = 400
     eccTol = 0.2
+    incTol = 5
     degTol = 20
 
     for i in range(len(tGrid)):         #Everything inside this loop has to be VERY FAST - Make it good :)
         for j in range(100):
-            if abs(out[i,0] - sat[j,i,0]) < kmTol and abs(out[i,1] - sat[j,i,1]) < eccTol and abs(out[i,2] - sat[j,i,2]) < degTol and abs(out[i,3] - sat[j,i,3]) < degTol and abs(out[i,4] - sat[j,i,4]) < degTol and abs(out[i,5] - sat[j,i,5]) < degTol:
+            if abs(out[i,0] - sat[j,i,0]) < kmTol and abs(out[i,1] - sat[j,i,1]) < eccTol and abs(out[i,2] - sat[j,i,2]) < incTol and abs(out[i,3] - sat[j,i,3]) < degTol and abs(out[i,4] - sat[j,i,4]) < degTol and abs(out[i,5] - sat[j,i,5]) < degTol:
                 print("Collision Found: Sat-" + str(j+1) + "  Time: " + str(tGrid[i] /(60*60*24)) + " days")
                 nCollisions += 1
 
-    return(print("No. of Detections: " + str(nCollisions)))
+    return(print("No. of Detections: " + str(nCollisions) + "  For debris: " + str(debrisNum +75)))
 
 
 #out = jl.Parallel(n_jobs=-1, prefer="threads")(delayed(Integrator)(initialDebrisTime[i], initialDebrisState[i,:], AMratio[i], i) for i in range(len(AMratio)) )
-Integrator(initialDebrisTime[1], initialDebrisState[1,:], AMratio[1], 0)
-print("AM-Ratio: " + str(AMratio[1])[0:6])
+debNumber = 76  -75#Debris chosen number
+
+Integrator(initialDebrisTime[debNumber], initialDebrisState[debNumber,:], AMratio[debNumber], debNumber)
+
+
+print("AM-Ratio: " + str(AMratio[debNumber])[0:6])
 #np.savetxt("testOut.txt",out)
 
 
