@@ -1,7 +1,6 @@
 #---Team Sidereal_Daydreamers - Andrea Milani Challenge 2021---#
 #---------------------------------------------------------------
 #Importing Libraries/Methods
-from mpmath.functions.functions import im
 import numpy as np
 import heyoka as hy
 from numpy.core.function_base import linspace
@@ -10,8 +9,11 @@ from ODE import ODE
 import joblib as jl
 from joblib.parallel import delayed
 from pykep import ic2par, par2ic
-
+import time
 #PART 1 - ESTIMATING THE AREA-TO-MASS RATIO---------------------
+
+#TIMING
+st1 = time.time()
 
 Regressor1 = CRAMRegressorModel()     #Creating trained AM-ratio estimator model from function library
 
@@ -42,33 +44,28 @@ print("MSE Score: " + str(msError) )
 
 SatData = SatRead()         #Reading all 100 satellite trajectories into 3D array
 SatData = np.reshape(SatData, [100,-1,7])
-SatTimeGrid = SatData[0,:,0]  #Creating 1D list of satellite trajectory observation time grid
+
+
+SatTimeGrid = SatData[0,:,0]                                #Creating 1D list of satellite trajectory observation time grid
+SatTimeGrid = np.multiply(SatTimeGrid, 60*60*24)            #Converting time grid from days to seconds
+
+
+
 ta = hy.taylor_adaptive(sys = ODE(), state = [0,0,0,0,0,0])     #Creating Heyoka integrator object configured with the dynamical ODE system
 
 
-#Timestep Callback Function - called at the end of every integration point on the time grid - solves for possible satellite debris causations from satellite trajectories
-def CollisionCallback(ta):      #THIS FUNCTION IS GOING TO BE CALLED AT EVERY TIMESTEP FOR EVERY DEBRIS (well over a million times) - Make it good :)
+
+#Numerical Integration Function - A method to propagate over a time grid for each debris
+def Integrator(startTime, startState, AMratio, debrisNum):         
     
-    #print("Time: " + str(ta.time/(60*60*24)))
-    timeIndex = np.searchsorted(a=SatTimeGrid, v=(ta.time/60*60*24))
-    #print(timeIndex)
+    startTime = startTime *60*60*24     #Converting from days to seconds, Propagation units KM, KM/s - Treat time variables as (seconds) inside this function
 
-    debrisState = rv2orbF(ta.state[:])
-    satList = SatData[:,timeIndex-1,1:7]
-    satList=np.reshape(satList,[100,6])
+    timeIndex = np.searchsorted(a=SatTimeGrid, v=startTime)     #Getting array index number for start time in time list
+    tGrid = SatTimeGrid[0:timeIndex]                            #Creating time grid from start time back to earliest trajectory time
+    tGrid = np.flip(tGrid)                                      #Flipping time grid to go back-in-time (back-propagation)
 
-    for i in range(100):
-        if abs(debrisState[0] - satList[i,0]) < 300 and abs(debrisState[1] - satList[i,1]) < 0.1 and abs(debrisState[2] - satList[i,2]) < 1 and abs(debrisState[3] - satList[i,3]) < 1:
-            print("Collision Found. " + "Satellite Number " + str(i+1))
+    sat = SatData[:,0:timeIndex,1:7]
 
-    return(True)        #Returns true for no reason other than to not halt the integration process over the time grid - propagate_ callbacks can halt with return(False)
-
-
-#Numerical Integration Function - A method to propagate over a time grid for each
-def Integrator(startTime, startState, AMratio, debrisNum):
-
-    stopTime = -7305 *60*60*24          #Converting from days to seconds, Propagation units KM, KM/s - Treat time variables as (seconds) inside this function
-    startTime = startTime *60*60*24
 
     startVec = orb2rv(startState)       #Converting orbital elements from file to state vector - See Function Library
 
@@ -76,19 +73,38 @@ def Integrator(startTime, startState, AMratio, debrisNum):
     ta.state[:] = startVec       #Setting integratior initial state
     ta.pars[0] = AMratio *1e-6   #Setting ODE parameter (AM-ratio) with units conversion
 
-    while ta.time > stopTime:
-        ta.propagate_for(delta_t= -864000, callback = CollisionCallback)   #Back-propagating the debris trajectory for 1 timestep (10 days / 864000s) Until the endTime (day 3645 after EME2000)
+    vecOut = ta.propagate_grid(grid = np.flip(SatTimeGrid))[4]  #Back-propagating the debris trajectory over the time grid (timestep = 10 days / 864000s) Until the endTime (day 3645 after EME2000)
 
-    return ta.state[:]
+    out = []
+
+    for vec in vecOut:
+        out.append(rv2orbF(vec))
+
+    out = np.reshape(out, [-1,6])
+
+    nCollisions = 0
+
+    #SETTING TOLERANCE VALUES
+    kmTol = 700
+    eccTol = 0.2
+    degTol = 20
+
+    for i in range(len(tGrid)):         #Everything inside this loop has to be VERY FAST - Make it good :)
+        for j in range(100):
+            if abs(out[i,0] - sat[j,i,0]) < kmTol and abs(out[i,1] - sat[j,i,1]) < eccTol and abs(out[i,2] - sat[j,i,2]) < degTol and abs(out[i,3] - sat[j,i,3]) < degTol and abs(out[i,4] - sat[j,i,4]) < degTol and abs(out[i,5] - sat[j,i,5]) < degTol:
+                print("Collision Found: Sat-" + str(j+1) + "  Time: " + str(tGrid[i] /(60*60*24)) + " days")
+                nCollisions += 1
+
+    return(print("No. of Detections: " + str(nCollisions)))
 
 
 #out = jl.Parallel(n_jobs=-1, prefer="threads")(delayed(Integrator)(initialDebrisTime[i], initialDebrisState[i,:], AMratio[i], i) for i in range(len(AMratio)) )
-Integrator(initialDebrisTime[3], initialDebrisState[3,:], AMratio[3], 0)
-print(AMratio[3])
+Integrator(initialDebrisTime[1], initialDebrisState[1,:], AMratio[1], 0)
+print("AM-Ratio: " + str(AMratio[1])[0:6])
 #np.savetxt("testOut.txt",out)
 
 
-
+print("Run Time: " + str(time.time()- st1)[0:7] + "s")
 
 
 
