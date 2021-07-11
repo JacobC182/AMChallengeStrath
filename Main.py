@@ -65,8 +65,8 @@ def Integrator(startTime, startState, AMratio, debrisNum):
     tGrid = np.flip(tGrid)                                      #Flipping time grid to go back-in-time (back-propagation)
 
     sat = SatData[:,0:timeIndex,1:7]
-    sat = np.flip(sat)
-
+    sat = np.flip(sat, axis=1)
+    
     startVec = orb2rv(startState)       #Converting orbital elements from file to state vector - See Function Library
     #print(DeNoise.predict([startState]))
     #startVec =  orb2rv( DeNoise.predict([startState])[0] )         #DENOISING INPUT OBSERVATION
@@ -87,9 +87,9 @@ def Integrator(startTime, startState, AMratio, debrisNum):
     nCollisions = 0
 
     #SETTING TOLERANCE VALUES
-    kmTol = 400
+    kmTol = 700
     eccTol = 0.2
-    incTol = 5
+    incTol = 10
     degTol = 20
 
     for i in range(len(tGrid)):         #Everything inside this loop has to be VERY FAST - Make it good :)
@@ -102,7 +102,7 @@ def Integrator(startTime, startState, AMratio, debrisNum):
 
 
 #out = jl.Parallel(n_jobs=-1, prefer="threads")(delayed(Integrator)(initialDebrisTime[i], initialDebrisState[i,:], AMratio[i], i) for i in range(len(AMratio)) )
-debNumber = 76  -75#Debris chosen number
+debNumber = 75  -75#Debris chosen number
 
 Integrator(initialDebrisTime[debNumber], initialDebrisState[debNumber,:], AMratio[debNumber], debNumber)
 
