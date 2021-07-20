@@ -1,7 +1,6 @@
 #This file contains coordinate system conversion functions
 #For converting between a geocentric cartesian system and Orbital elements and opposite
 from copy import Error
-from numpy.lib.financial import _npv_dispatcher
 from numpy.lib.function_base import median
 from numpy.ma.core import dot, shape
 

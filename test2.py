@@ -2,6 +2,8 @@ import numpy as np
 
 from FunctionLibrary import FileStr, mse
 from sklearn.ensemble import IsolationForest, GradientBoostingRegressor
+from sklearn.svm import OneClassSVM
+from sklearn.covariance import EllipticEnvelope
 
 data = np.loadtxt("DebDataCompiled.txt")
 AMratio = np.loadtxt("AMRatioCompiled.txt")
@@ -13,12 +15,14 @@ debTrain = np.reshape(debTrain, [-1, 7])
 debTest = np.reshape(debTest, [-1, 7])
 
 
-FogLight = IsolationForest(n_estimators=200, n_jobs=-1)
+FogLight = IsolationForest(n_estimators=200, n_jobs=-1)#, max_samples=200)
+FogLight = OneClassSVM(nu=0.3)
+#FogLight = EllipticEnvelope()
 
 FogLight.fit(debTrain)
 
-results = FogLight.predict(debTest)
-
+results = FogLight.fit_predict(debTest)
+print(FogLight.support_vectors_)
 print(results)
 
 Regressor = GradientBoostingRegressor(n_estimators=2000, max_depth=2)
