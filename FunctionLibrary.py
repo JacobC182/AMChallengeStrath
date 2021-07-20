@@ -245,7 +245,7 @@ def rv2orbF(state):
 
     MeanAnom = orb[5]  - (orb[1]*np.sin(orb[5]))
 
-    orb = [orb[0], orb[1], orb[2]*(180/np.pi), MeanAnom*(180/np.pi), orb[4]*(180/np.pi), orb[3]*(180/np.pi)]
+    orb = [orb[0], orb[1], orb[2]*(180/np.pi), (MeanAnom*(180/np.pi))%360, orb[4]*(180/np.pi), orb[3]*(180/np.pi)]
 
     return orb
 
@@ -281,7 +281,7 @@ def CRAMRegressorModel():
     
 #READING DATA----------------------------------------------------------------------------------
 #Iterating over a range 1-100 step=1, going through all 100 debris data files
-    for i in range(1, 75 +1, 1):
+    for i in range(26, 100 +1, 1):
         fileNumberString = ""   #creating empty string for converting int (i) to string to use as sequential file number
 
         if len(str(i)) == 1:    #Creating appropriate string of file number "001" - "100"

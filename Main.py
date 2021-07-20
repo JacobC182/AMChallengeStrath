@@ -21,7 +21,7 @@ initialDebrisState = []     #create empty array to hold the earliest observed st
 initialDebrisTime = []      #create empty array to hold the time corresponding to the debris state
 AMratio = []    #create empty AMratio list
 
-for i in range(75,100 +1, 1):
+for i in range(1,25 +1, 1):
     debrisData = np.loadtxt("data\deb_train\eledebtrain" + FileStr(i) + ".dat")     #Read each debris observation file
     debrisData = np.reshape(debrisData, [-1, 7])
 
@@ -36,7 +36,7 @@ for i in range(75,100 +1, 1):
 initialDebrisState = np.reshape(initialDebrisState, [-1,6])     #reshaping initial debris state array from needlessly 3D to 2D
 
 realRatio = np.loadtxt("data\labels_train.dat")[:,1]        #Reading in the REAL ratios from the training data
-msError = mse(realRatio[74:100], AMratio)
+msError = mse(realRatio[0:25], AMratio)
 print("MSE Score: " + str(msError) )
 
 #---------------------------------------------------------------
