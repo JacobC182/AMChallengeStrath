@@ -3,6 +3,7 @@
 from copy import Error
 from numpy.lib.function_base import median
 from numpy.ma.core import dot, shape
+from orbital.utilities import eccentric_anomaly_from_mean, mean_anomaly_from_eccentric
 
 #importing NumPy library
 import numpy as np
@@ -169,10 +170,10 @@ def EccentricAnomalySolver(mean, e):
     else:
         e0 = mean
 #while using error/corrector term condition
-    while abs(e0 - (mean+e*ma.sin(e0)))/(1-e*ma.cos(e0)) > 0.000001:
+    while abs(e0 - (mean+e*ma.sin(e0)))/(1-e*ma.cos(e0)) > 0.0000001:
 #n-r method
         e1 = e0 - ((e0 - (mean+e*ma.sin(e0)))/(1-e*ma.cos(e0)))
-
+        print(e1/(ma.pi/180))
         e0 = e1
 
     return(e0)
@@ -243,6 +244,7 @@ def rv2orbF(state):
     orb = ic2par(r,v,3.986004407799724e+5)
 
     MeanAnom = orb[5]  - (orb[1]*np.sin(orb[5]))
+    #MeanAnom = mean_anomaly_from_eccentric(orb[1],orb[5])
 
     orb = [orb[0], orb[1], orb[2]*(180/np.pi), (MeanAnom*(180/np.pi))%360, orb[4]*(180/np.pi), orb[3]*(180/np.pi)]
 
@@ -366,7 +368,8 @@ def mse(actual, pred):
 #Function that converts system of orbital elements taken from data files in form a,e,i,M,w,W, returns 1x0 state vector in KM, KM/s, around Earth
 def orb2rv(startState):
 
-    startR, startV = pykep.par2ic([startState[0], startState[1], startState[2]*(np.pi/180), startState[5]*(np.pi/180), startState[4]*(np.pi/180), EccentricAnomalySolver(startState[3], startState[1])], 3.986004407799724e+5)
+    #startR, startV = pykep.par2ic([startState[0], startState[1], startState[2]*(np.pi/180), startState[5]*(np.pi/180), startState[4]*(np.pi/180), EccentricAnomalySolver(startState[3], startState[1])], 3.986004407799724e+5)
+    startR, startV = pykep.par2ic([startState[0], startState[1], startState[2]*(np.pi/180), startState[5]*(np.pi/180), startState[4]*(np.pi/180), eccentric_anomaly_from_mean(startState[1], startState[3]*(np.pi/180))], 3.986004407799724e+5)
 
     return np.concatenate((startR, startV), axis=0)
 
@@ -374,77 +377,52 @@ def orb2rv(startState):
 
 
 
-#Function that creates and trains a Model for error/noise correction of the debris observations!
-def DenoiseModel():     #DOES NOT WORK - DOES NOT WORK - DOES NOT WORK
+
+#Function that creates and trains the Observational Outlier Detector Model!! - sklearn outlier detection - machine learning model
+def XrayVision():
     
-    from sklearn.ensemble import RandomForestRegressor
+    #importing outlier detection algorithm models from sklearn library
+    from sklearn.ensemble import IsolationForest
+    from sklearn.neighbors import LocalOutlierFactor
+    #Unsure if neighbors algorithm is useable - "Curse of dimensionality, Concept of neighborhood becomes meaningless" --https://archive.siam.org/meetings/sdm10/tutorial3.pdf - Slide 56
+    #But neighbors model accepts N x M array multi-dimension data
+    from sklearn.svm import OneClassSVM
+    from sklearn.covariance import EllipticEnvelope
 
-    import heyoka as hy
-    from ODE import ODE
+    #Creating Outlier Detection Model object
+    OutlierModel = IsolationForest(n_estimators=2000, n_jobs=-1)
+    #OutlierModel = LocalOutlierFactor(n_neighbors=2)
+    
+    #Creating empty array to hold debris data
+    debData = []
 
-    ta = hy.taylor_adaptive(sys = ODE(), state = [0,0,0,0,0,0])
+    #READING DEBRIS DATA-------------------------------------------------
+    for i in range(26, 100 +1, 1):
+        fileNumberString = ""   #creating empty string for converting int (i) to string to use as sequential file number
 
-    originData = np.loadtxt("data\labels_train.dat")
+        if len(str(i)) == 1:    #Creating appropriate string of file number "001" - "100"
+            fileNumberString = "00" + (str(i))
+        elif len(str(i)) == 2:
+            fileNumberString = "0" + (str(i))
+        else:
+            fileNumberString = (str(i))
+    
+        debrisData = np.loadtxt("data\deb_train\eledebtrain" + fileNumberString + ".dat")   #Reading each debris observation file individually
 
-    AMratio = originData[:,1]
-    startTime = np.multiply(originData[:,2], (60*60*24) )
+        if len(np.shape(debrisData)) == 1:      #Appending debris data and AM ratio to input and output training arrays respectivel
+            debData.append(debrisData)
+        else:
+            for j in range(len(debrisData)):        #Multiple observations from the same debris are given the same true AM-ratio from that debris in the 2D training array format
+                debData.append(debrisData[j,:])
 
-    propagatedData = []
-    observedData = []
+    #Fitting Model to training data
+    OutlierModel.fit(debData)
 
-    for i in range(5):
-        ta.time = startTime[i]
-        ta.state[:] = orb2rv(originData[i,3:9])
-        ta.pars[0] = AMratio[i] *1e-6
-
-        fileNo = FileStr(i+1)
-        print(i)
-        obs = np.loadtxt("data\deb_train\eledebtrain" + fileNo + ".dat")
-
-        obs = np.reshape(obs, [-1,7])
-
-        obsTimes = obs[:,0]
-
-        obsTimes = np.multiply(obsTimes, (60*60*24) )
-
-
-        vecOut = ta.propagate_grid(grid=obsTimes)[4]
-
-        out = []
-
-        for j in vecOut:
-            out.append(rv2orbF(j))
-        
-        out = np.reshape(out, [-1,6])
-        
-        propagatedData.append(out)
-        observedData.append(obs[:,1:7])
-
-    print(np.shape(propagatedData))
-    propagatedData = np.reshape(propagatedData, [-1,6])
-    observedData = np.reshape(observedData, [-1,6])
-
-    Model = RandomForestRegressor(n_estimators=2000)
-
-    Model.fit(observedData, propagatedData)
+    return OutlierModel
 
 
 
 
-def DeNoise2():
-    from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
-    from sklearn.neighbors import KNeighborsRegressor, RadiusNeighborsRegressor
-    from sklearn.neural_network import MLPRegressor
 
-    ErrorRegressor = RandomForestRegressor(n_estimators=1000, n_jobs=-1)
-    ErrorRegressor = RadiusNeighborsRegressor(n_neighbors=100)
-    ErrorRegressor = ExtraTreesRegressor()
 
-    observedInput = np.loadtxt("observedData.txt",delimiter=",")
-    propagatedOutput = np.loadtxt("propagatedData.txt",delimiter=",")
-
-    ErrorRegressor.fit(observedInput, propagatedOutput)
-
-    #deNoise = ErrorRegressor.predict([[42276.74 , 0.0507489  ,  13.4614  , 107.7131 ,  188.8823  ,   5.8539]])
-
-    return ErrorRegressor
+#XrayVision()
