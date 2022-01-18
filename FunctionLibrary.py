@@ -425,4 +425,42 @@ def XrayVision():
 
 
 
-#XrayVision()
+def XrayVision2():
+    #importing outlier detection algorithm models from sklearn library
+    from sklearn.ensemble import IsolationForest
+    from sklearn.neighbors import LocalOutlierFactor
+    #Unsure if neighbors algorithm is useable - "Curse of dimensionality, Concept of neighborhood becomes meaningless" --https://archive.siam.org/meetings/sdm10/tutorial3.pdf - Slide 56
+    #But neighbors model accepts N x M array multi-dimension data
+    from sklearn.svm import OneClassSVM
+    from sklearn.covariance import EllipticEnvelope
+
+    #Creating Outlier Detection Model object
+    OutlierModel = IsolationForest(n_estimators=2000, n_jobs=-1)
+    #OutlierModel = LocalOutlierFactor(n_neighbors=2)
+    
+    #Creating empty array to hold debris data
+    debData = []
+
+    #READING DEBRIS DATA-------------------------------------------------
+    for i in range(26, 100 +1, 1):
+        fileNumberString = ""   #creating empty string for converting int (i) to string to use as sequential file number
+
+        if len(str(i)) == 1:    #Creating appropriate string of file number "001" - "100"
+            fileNumberString = "00" + (str(i))
+        elif len(str(i)) == 2:
+            fileNumberString = "0" + (str(i))
+        else:
+            fileNumberString = (str(i))
+    
+        debrisData = np.loadtxt("data\deb_train\eledebtrain" + fileNumberString + ".dat")   #Reading each debris observation file individually
+
+        if len(np.shape(debrisData)) == 1:      #Appending debris data and AM ratio to input and output training arrays respectivel
+            debData.append(debrisData)
+        else:
+            for j in range(len(debrisData)):        #Multiple observations from the same debris are given the same true AM-ratio from that debris in the 2D training array format
+                debData.append(debrisData[j,:])
+
+    #Fitting Model to training data
+    OutlierModel.fit(debData)
+
+    return OutlierModel
